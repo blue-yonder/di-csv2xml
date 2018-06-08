@@ -43,7 +43,7 @@ struct Cli {
 }
 
 main!(|args: Cli| {
-    let input : Box<io::Read> = if let Some(input) = args.input{
+    let input: Box<io::Read> = if let Some(input) = args.input {
         Box::new(FileWithProgressBar::new(File::open(&input)?)?)
     } else {
         Box::new(io::stdin())
@@ -52,7 +52,7 @@ main!(|args: Cli| {
         .delimiter(args.delimiter as u8)
         .from_reader(input);
 
-    let mut out : Box<io::Write> = if let Some(output) = args.output {
+    let mut out: Box<io::Write> = if let Some(output) = args.output {
         Box::new(io::BufWriter::new(File::create(&output)?))
     } else {
         Box::new(io::stdout())
