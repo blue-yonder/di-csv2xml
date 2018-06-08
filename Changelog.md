@@ -8,6 +8,11 @@ Changelog
 * Support for stdin and stdout
 * Suport for customer extensions
 
+0.3.x
+-----
+
+introduced to test release process
+
 0.2.3
 -----
 
