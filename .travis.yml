@@ -3,6 +3,9 @@ language: rust
 services: docker
 
 language: rust
+script:
+  - cargo build --verbose --release
+  - cargo test --verbose --release
 rust:
   - stable
   - beta
@@ -24,7 +27,7 @@ deploy:
   api_key:
     secure: Z6Xk3cyaSpVyAmmOZynOqANdl6OWCbANk8zLTSpZWW3K/pAe7oUgn4bMPZpnmplp2/Wc5XHykUziw8C+hO4NRhXT9JL0jbWedpRk8ITZybEamvFkbjqc9zDk4X4mFx3tse03kwhlSD7D9ZiEEnz9/lyDHoAFmDSOXdxLgmzxl+irhhxbOe1DiJu2T1/dUt2xDd6Bbp+aQnEOjVziDfmo2TIe8b6jdeKwGflY6O7NsZ4wLy1Tb5wfYMAnD7zBaK91BhmjnkMsVbX7w4LWff9BVMbhc3W4SXZwAvLyd4tbAzEz3Pm7v3xrfJ7idmuBQTP6wFJB2Htxb4meQrzBHuAX1k6wnb+rYIE5in6mEMm6XiAFMILkZSiZY4T9CAXitrj5Ay7nlMjrRP5vEfFFta3Fc7GTRL0FVn4NwNGl4MyNZ++WwZCMjN9N/GHu8CiCnRoXZb64DIACU2gqeIzgvyH74Zx0Y+sTyGeXhZsxNRB5wrLHd05Sn/g6vIadkwYlqwMK58i8HLdfEVUOah+AeR1wXxYhWRbz4a71RLt1HDD/A5ECdRZr8MbI6dR8sl/bIiYcKKX2w2D++qT5XUUHPhVup2biyGeb3028p3jkbzsUXkgzS8Sd04sbbtqB4+nkgN9G0Q0gs7k/ws0vSbgZnSLbVgdaDfKodi4TBs1PvZj5z48=
   file_glob: true
-  file: $di-csv2xml-$TRAVIS_TAG-$TARGET.*
+  file: $target/release/di-csv2xml*
   on:
     # Here you can pick which targets will generate binary releases
     # In this example, there are some targets that are tested using the stable
