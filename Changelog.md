@@ -4,8 +4,6 @@ Changelog
 1.0.0 (unreleased)
 -----
 
-First version published on GitHub.
-
 * MIT License
 * Support for stdin and stdout
 * Suport for customer extensions
