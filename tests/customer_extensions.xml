@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+	<Record>
+		<A>1</A>
+		<C>3</C>
+		<CustomerExtensions>
+			<B>2</B>
+			<D>4</D>
+		</CustomerExtensions>
+	</Record>
+</Root>

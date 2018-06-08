@@ -1,0 +1,15 @@
+[package]
+name = "di-csv2xml"
+version = "0.2.3"
+authors = ["Markus Klein <markus.klein@blue-yonder.com>"]
+license = "MIT"
+
+[dependencies]
+quicli = "0.2.0"       # Quickly build cool CLI apps in Rust.
+csv = "1.0.0"          # Fast CSV parsing with support for serde.
+indicatif = "0.9.0"    # A progress bar and cli reporting library for Rust
+strum = "0.9.0"        # Helpful macros for working with enums and strings
+strum_macros = "0.9.0" # Helpful macros for working with enums and strings
+
+[dev-dependencies]
+assert_cli = "0.6.0" # Test CLI Applications.
