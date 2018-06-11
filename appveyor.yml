@@ -87,7 +87,8 @@ before_deploy:
 deploy:
   provider: GitHub
   artifact: /.*\.zip/
-  draft: true
+  draft: false
+  release: $(APPVEYOR_REPO_TAG_NAME)
 
   # To update `auth_token.secure`
   # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
