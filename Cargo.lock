@@ -179,7 +179,7 @@ dependencies = [
 
 [[package]]
 name = "di-csv2xml"
-version = "0.2.3"
+version = "0.3.3"
 dependencies = [
  "assert_cli 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "csv 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
