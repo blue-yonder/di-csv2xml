@@ -6,7 +6,7 @@ Changelog
 
 * MIT License
 * Support for stdin and stdout
-* Suport for customer extensions
+* Support for customer extensions
 
 0.3.x
 -----
