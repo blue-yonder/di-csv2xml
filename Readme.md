@@ -11,16 +11,16 @@ perform any validation besides checking for valid `UTF8` encoding.
 Installation
 ------------
 
-You can download a binary executable (for OS-X, Windows and Linux) or build it yourself using:
+You can [download a binary executable](https://github.com/blue-yonder/di-csv2xml/releases) (for
+64Bit OS-X, Windows and Linux) or build it yourself using:
 
 ```bash
 git clone https://github.com/blue-yonder/di-csv2xml.git
 cd di-csv2xml
-cargo install
+cargo build --release
 ```
 
-Is a previous version already installed? Not to worry, just use `cargo install --force`. The force
-option will replace the old version with the new one.
+You will find the executable in the `.\target\release\` directory.
 
 You can install cargo from [here](https://rustup.rs) if it is not installed.
 
