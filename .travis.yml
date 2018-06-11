@@ -4,6 +4,8 @@ services: docker
 
 language: rust
 script:
+  - echo $TRAVIS_RUST_VERSION
+  - set 
   - cargo build --verbose --release
   - cargo test --verbose --release
 rust:
@@ -19,7 +21,7 @@ matrix:
   fast_finish: true
 
 before_deploy:
-  - tar czvf di-csv2xml-$TRAVIS_TAG-$TRAVIS_OS_NAME.tar.gz target/release/di-csv2xml
+  - tar czvf di-csv2xml-$TRAVIS_TAG-x86_64-$TRAVIS_OS_NAME.tar.gz target/release/di-csv2xml
 
 deploy:
   # TO update `api_key.secure`
