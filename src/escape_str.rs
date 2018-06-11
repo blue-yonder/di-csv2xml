@@ -1,4 +1,4 @@
-// Copied from Piston wich features a permissive MIT LICENSE
+// Copied from Piston which features a permissive MIT LICENSE
 use std::borrow::Cow;
 use std::borrow::Cow::{Borrowed, Owned};
 use std::iter::IntoIterator;
