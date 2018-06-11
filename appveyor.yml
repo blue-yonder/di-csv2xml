@@ -81,7 +81,7 @@ test_script:
   - cargo test --release --verbose
 
 before_deploy:
-  - 7z a di-csv2xml-%APPVEYOR_REPO_TAG_NAME%-x86_64-windows.zip \target\release\di-csv2xml.exe
+  - 7z a di-csv2xml-%APPVEYOR_REPO_TAG_NAME%-x86_64-windows.zip .\target\release\di-csv2xml.exe
   - appveyor PushArtifact di-csv2xml-%APPVEYOR_REPO_TAG_NAME%-x86_64-windows.zip
   
 deploy:
