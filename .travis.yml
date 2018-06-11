@@ -4,8 +4,6 @@ services: docker
 
 language: rust
 script:
-  - echo $TRAVIS_RUST_VERSION
-  - set 
   - cargo build --verbose --release
   - cargo test --verbose --release
 rust:
