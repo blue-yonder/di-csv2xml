@@ -87,7 +87,8 @@ before_deploy:
 deploy:
   provider: GitHub
   artifact: /.*\.zip/
-  draft: false
+  draft: true
+
   # To update `auth_token.secure`
   # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
   # - Encrypt it. Go to https://ci.appveyor.com/tools/encrypt
@@ -95,8 +96,8 @@ deploy:
   auth_token:
     secure: x4iFFPZN3RfRx47hZ3nbNtZYcoO9OK8ElNS0P/OvWSyVO4BQa2dGNvigxOu7DWqA
   description: ''
-  # on:
-  #   appveyor_repo_tag: true
+  on:
+    appveyor_repo_tag: true
 
 cache:
   - C:\Users\appveyor\.cargo\registry
