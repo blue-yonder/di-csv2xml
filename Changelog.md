@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.1
+-----
+
+* Updated dependencies
+* Build with Rust 1.27.0
+
 1.0.0
 -----
 
