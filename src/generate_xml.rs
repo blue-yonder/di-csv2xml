@@ -15,7 +15,7 @@ pub fn generate_xml<O: Write, I: Read>(
     let (customer_extension, standard): (Vec<_>, Vec<_>) =
         (0..header.len()).partition(|&index| header[index].starts_with(CUSTOMER_EXTENSION_PREFIX));
     // Write declaration
-    out.write(b"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")?;
+    out.write_all(b"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")?;
     // Open root tag (Category)
     open_markup(&mut out, category)?;
     // Write one record for each entry in csv
@@ -33,7 +33,7 @@ pub fn generate_xml<O: Write, I: Read>(
         )?;
     }
     // Close root tag (Category)
-    out.write(b"\n")?;
+    out.write_all(b"\n")?;
     close_markup(&mut out, category)?;
     Ok(())
 }
@@ -42,9 +42,9 @@ fn open_markup<W>(mut out: W, name: &str) -> io::Result<()>
 where
     W: io::Write,
 {
-    out.write(b"<")?;
-    out.write(name.as_bytes())?;
-    out.write(b">")?;
+    out.write_all(b"<")?;
+    out.write_all(name.as_bytes())?;
+    out.write_all(b">")?;
     Ok(())
 }
 
@@ -52,30 +52,30 @@ fn write_record<W>(mut out: W, record: &Record, record_type: &str) -> io::Result
 where
     W: io::Write,
 {
-    out.write(b"\n\t")?;
+    out.write_all(b"\n\t")?;
     open_markup(&mut out, record_type)?;
     for (name, value) in record.standard() {
-        out.write(b"\n\t\t")?;
+        out.write_all(b"\n\t\t")?;
         open_markup(&mut out, name)?;
-        out.write(escape_str(value).as_bytes())?;
+        out.write_all(escape_str(value).as_bytes())?;
         close_markup(&mut out, name)?;
     }
     // customer extensions
     let mut extensions = record.extensions().peekable();
     if extensions.peek().is_some() {
-        out.write(b"\n\t\t")?;
+        out.write_all(b"\n\t\t")?;
         open_markup(&mut out, "CustomerExtensions")?;
         for (name, value) in record.extensions() {
-            out.write(b"\n\t\t\t")?;
+            out.write_all(b"\n\t\t\t")?;
             open_markup(&mut out, name)?;
-            out.write(escape_str(value).as_bytes())?;
+            out.write_all(escape_str(value).as_bytes())?;
             close_markup(&mut out, name)?;
         }
-        out.write(b"\n\t\t")?;
+        out.write_all(b"\n\t\t")?;
         close_markup(&mut out, "CustomerExtensions")?;
     }
 
-    out.write(b"\n\t")?;
+    out.write_all(b"\n\t")?;
     close_markup(&mut out, record_type)?;
     Ok(())
 }
@@ -84,9 +84,9 @@ fn close_markup<W>(mut out: W, name: &str) -> io::Result<()>
 where
     W: io::Write,
 {
-    out.write(b"</")?;
-    out.write(name.as_bytes())?;
-    out.write(b">")?;
+    out.write_all(b"</")?;
+    out.write_all(name.as_bytes())?;
+    out.write_all(b">")?;
     Ok(())
 }
 

@@ -6,6 +6,9 @@ Changelog
 
 * Updated dependencies
 * Build with Rust 1.27.0
+* Fix: Replaced `io::Write::write` with `io::Write::write_all`. The former may not write all the
+       bytes, which can result in invalid output. The symptom could not be produced by a test, but
+       has been indicated by a linter (clippy).
 
 1.0.0
 -----
