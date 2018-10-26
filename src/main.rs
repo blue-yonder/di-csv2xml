@@ -2,9 +2,7 @@ extern crate csv;
 extern crate indicatif;
 extern crate strum;
 
-#[macro_use]
 extern crate quicli;
-#[macro_use]
 extern crate strum_macros;
 
 mod escape_str;
@@ -12,6 +10,7 @@ mod file_with_progress_bar;
 mod generate_xml;
 mod record_type;
 
+use quicli::main;
 use file_with_progress_bar::FileWithProgressBar;
 use generate_xml::generate_xml;
 use quicli::prelude::*;

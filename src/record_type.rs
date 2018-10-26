@@ -1,3 +1,5 @@
+use strum_macros::{EnumString, AsRefStr};
+
 /// Type which can hold all possible values for a record type
 #[derive(Debug, EnumString, AsRefStr, Clone, Copy)]
 pub enum RecordType {
