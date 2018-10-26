@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.0.4
+-----
+
+* Updated dependencies
+* Build with Rust 1.30.0
+* Enabled link time optimizations
+
 1.0.3
 -----
 

@@ -1,8 +1,12 @@
 [package]
 name = "di-csv2xml"
-version = "1.0.3"
+version = "1.0.4"
 authors = ["Markus Klein <markus.klein@blue-yonder.com>"]
 license = "MIT"
+publish = false
+
+[profile.release]
+lto = true
 
 [dependencies]
 quicli = "0.3.0"        # Quickly build cool CLI apps in Rust.
