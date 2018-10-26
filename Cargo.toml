@@ -8,8 +8,8 @@ license = "MIT"
 quicli = "0.3.0"        # Quickly build cool CLI apps in Rust.
 csv = "1.0.0"           # Fast CSV parsing with support for serde.
 indicatif = "0.9.0"     # A progress bar and cli reporting library for Rust
-strum = "0.10.0"        # Helpful macros for working with enums and strings
-strum_macros = "0.10.0" # Helpful macros for working with enums and strings
+strum = "0.11.0"        # Helpful macros for working with enums and strings
+strum_macros = "0.11.0" # Helpful macros for working with enums and strings
 
 [dev-dependencies]
 assert_cli = "0.6.0" # Test CLI Applications.
