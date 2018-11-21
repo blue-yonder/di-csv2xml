@@ -1,13 +1,12 @@
 extern crate assert_cli;
 
-
 #[test]
 fn simple() {
     assert_cli::Assert::main_binary()
         .with_args(&["Category", "--input", "tests/input.csv"])
         .succeeds()
         .stdout()
-        .is(include_str!("output.xml"))
+        .is(include_str!("output.xml").replace("\r\n", "\n").as_str())
         .unwrap();
 }
 
@@ -17,7 +16,7 @@ fn mask_text() {
         .with_args(&["Text", "--input", "tests/text.csv"])
         .succeeds()
         .stdout()
-        .is(include_str!("text.xml"))
+        .is(include_str!("text.xml").replace("\r\n", "\n").as_str())
         .unwrap();
 }
 
@@ -30,10 +29,9 @@ fn semicolon_delimiter() {
             "tests/sem_delim.csv",
             "--delimiter",
             ";",
-        ])
-        .succeeds()
+        ]).succeeds()
         .stdout()
-        .is(include_str!("output.xml"))
+        .is(include_str!("output.xml").replace("\r\n", "\n").as_str())
         .unwrap();
 }
 
@@ -46,11 +44,11 @@ fn delete_record() {
             "tests/simple.csv",
             "--record-type",
             "DeleteRecord",
-        ])
-        .succeeds()
+        ]).succeeds()
         .stdout()
-        .is(include_str!("simple_delete.xml"))
-        .unwrap();
+        .is(include_str!("simple_delete.xml")
+            .replace("\r\n", "\n")
+            .as_str()).unwrap();
 }
 
 #[test]
@@ -62,23 +60,20 @@ fn delete_all() {
             "tests/simple.csv",
             "--record-type",
             "DeleteAllRecords",
-        ])
-        .succeeds()
+        ]).succeeds()
         .stdout()
-        .is(include_str!("simple_delete_all.xml"))
-        .unwrap();
+        .is(include_str!("simple_delete_all.xml")
+            .replace("\r\n", "\n")
+            .as_str()).unwrap();
 }
 
 #[test]
 fn customer_extensions() {
     assert_cli::Assert::main_binary()
-        .with_args(&[
-            "Root",
-            "--input",
-            "tests/customer_extensions.csv",
-        ])
+        .with_args(&["Root", "--input", "tests/customer_extensions.csv"])
         .succeeds()
         .stdout()
-        .is(include_str!("customer_extensions.xml"))
-        .unwrap();
+        .is(include_str!("customer_extensions.xml")
+            .replace("\r\n", "\n")
+            .as_str()).unwrap();
 }
