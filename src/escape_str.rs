@@ -78,7 +78,7 @@ impl<'a> Extend<Value> for Process<'a> {
 /// PCDATA sections.
 ///
 /// Does not perform allocations if the given string does not contain escapable characters.
-pub fn escape_str(s: &str) -> Cow<str> {
+pub fn escape_str(s: &str) -> Cow<'_, str> {
     let mut p = B(s);
     p.extend(s.chars().map(Value::dispatch));
     p.into_result()

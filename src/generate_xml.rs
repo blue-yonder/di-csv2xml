@@ -1,6 +1,8 @@
+use crate::{
+    escape_str::escape_str,
+    record_type::RecordType
+};
 use csv;
-use crate::escape_str::escape_str;
-use crate::record_type::RecordType;
 use std::io::{self, Read, Write};
 
 const CUSTOMER_EXTENSION_PREFIX: &str = "CUEX_";
@@ -48,7 +50,7 @@ where
     Ok(())
 }
 
-fn write_record<W>(mut out: W, record: &Record, record_type: &str) -> io::Result<()>
+fn write_record<W>(mut out: W, record: &Record<'_>, record_type: &str) -> io::Result<()>
 where
     W: io::Write,
 {

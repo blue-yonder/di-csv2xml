@@ -1,25 +1,20 @@
-#![warn(rust_2018_idioms)]
-
-extern crate csv;
-extern crate indicatif;
-extern crate strum;
-
-extern crate quicli;
-extern crate strum_macros;
-extern crate structopt;
+use csv;
+use strum;
+use structopt;
 
 mod escape_str;
 mod file_with_progress_bar;
 mod generate_xml;
 mod record_type;
 
-use structopt::StructOpt;
-use crate::file_with_progress_bar::FileWithProgressBar;
-use crate::generate_xml::generate_xml;
+use crate::{
+    file_with_progress_bar::FileWithProgressBar,
+    generate_xml::generate_xml,
+    record_type::RecordType
+};
 use quicli::prelude::*;
-use crate::record_type::RecordType;
-use std::fs::File;
-use std::io;
+use std::{fs::File, io};
+use structopt::StructOpt;
 
 /// Reads csv and writes xml. The resulting XML Document is intended for deliveries to the
 /// Blue Yonder Supply and Demand API. This tool only checks for correct utf8 encoding and nothing
@@ -46,7 +41,7 @@ struct Cli {
 
 fn main() -> CliResult {
     let args = Cli::from_args();
-    let input: Box<io::Read> = if let Some(input) = args.input {
+    let input: Box<dyn io::Read> = if let Some(input) = args.input {
         Box::new(FileWithProgressBar::new(File::open(&input)?)?)
     } else {
         Box::new(io::stdin())
@@ -55,7 +50,7 @@ fn main() -> CliResult {
         .delimiter(args.delimiter as u8)
         .from_reader(input);
 
-    let mut out: Box<io::Write> = if let Some(output) = args.output {
+    let mut out: Box<dyn io::Write> = if let Some(output) = args.output {
         Box::new(io::BufWriter::new(File::create(&output)?))
     } else {
         Box::new(io::stdout())
