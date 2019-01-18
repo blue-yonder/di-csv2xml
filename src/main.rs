@@ -4,13 +4,14 @@ extern crate strum;
 
 extern crate quicli;
 extern crate strum_macros;
+extern crate structopt;
 
 mod escape_str;
 mod file_with_progress_bar;
 mod generate_xml;
 mod record_type;
 
-use quicli::main;
+use structopt::StructOpt;
 use file_with_progress_bar::FileWithProgressBar;
 use generate_xml::generate_xml;
 use quicli::prelude::*;
@@ -41,7 +42,8 @@ struct Cli {
     delimiter: char,
 }
 
-main!(|args: Cli| {
+fn main() -> CliResult {
+    let args = Cli::from_args();
     let input: Box<io::Read> = if let Some(input) = args.input {
         Box::new(FileWithProgressBar::new(File::open(&input)?)?)
     } else {
@@ -57,4 +59,5 @@ main!(|args: Cli| {
         Box::new(io::stdout())
     };
     generate_xml(&mut out, &mut reader, &args.category, args.record_type)?;
-});
+    Ok(())
+}
