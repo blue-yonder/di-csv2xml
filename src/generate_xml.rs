@@ -1,6 +1,6 @@
 use csv;
-use escape_str::escape_str;
-use record_type::RecordType;
+use crate::escape_str::escape_str;
+use crate::record_type::RecordType;
 use std::io::{self, Read, Write};
 
 const CUSTOMER_EXTENSION_PREFIX: &str = "CUEX_";

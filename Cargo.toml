@@ -4,6 +4,7 @@ version = "1.0.4"
 authors = ["Markus Klein <markus.klein@blue-yonder.com>"]
 license = "MIT"
 publish = false
+edition = "2018"
 
 [profile.release]
 lto = true

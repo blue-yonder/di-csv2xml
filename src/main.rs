@@ -1,3 +1,5 @@
+#![warn(rust_2018_idioms)]
+
 extern crate csv;
 extern crate indicatif;
 extern crate strum;
@@ -12,10 +14,10 @@ mod generate_xml;
 mod record_type;
 
 use structopt::StructOpt;
-use file_with_progress_bar::FileWithProgressBar;
-use generate_xml::generate_xml;
+use crate::file_with_progress_bar::FileWithProgressBar;
+use crate::generate_xml::generate_xml;
 use quicli::prelude::*;
-use record_type::RecordType;
+use crate::record_type::RecordType;
 use std::fs::File;
 use std::io;
 
