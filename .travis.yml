@@ -20,7 +20,7 @@ matrix:
 before_deploy:
     - | 
       if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-        7z a di-csv2xml-$TRAVIS_TAG-x86_64-windows.zip .\target\release\di-csv2xml.exe;
+        7z a di-csv2xml-$TRAVIS_TAG-x86_64-windows.zip .\\target\\release\\di-csv2xml.exe;
         export ARCHIVE_TYPE=zip
       else
         tar czvf di-csv2xml-$TRAVIS_TAG-x86_64-$TRAVIS_OS_NAME.tar.gz -C target/release/ di-csv2xml;
