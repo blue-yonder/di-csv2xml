@@ -1,20 +1,17 @@
-use csv;
-use strum;
-use structopt;
-
 mod escape_str;
-mod file_with_progress_bar;
 mod generate_xml;
 mod record_type;
 
 use crate::{
-    file_with_progress_bar::FileWithProgressBar,
     generate_xml::generate_xml,
     record_type::RecordType
 };
+use indicatif::{ProgressBar, ProgressStyle};
+use strum;
+use csv;
 use quicli::prelude::*;
-use std::{fs::File, io};
 use structopt::StructOpt;
+use std::{fs::File, io};
 
 /// Reads csv and writes xml. The resulting XML Document is intended for deliveries to the
 /// Blue Yonder Supply and Demand API. This tool only checks for correct utf8 encoding and nothing
@@ -41,9 +38,28 @@ struct Cli {
 
 fn main() -> CliResult {
     let args = Cli::from_args();
+
+    // Only initialized in case `input` specifies a file path, because only then we have information
+    // about input length.
+    //
+    // We keep this in top level scope, since we want the progress bar to live during the whole
+    // program execution, so it will be displayed.
+    let progress_bar;
+
     let input: Box<dyn io::Read> = if let Some(input) = args.input {
-        Box::new(FileWithProgressBar::new(File::open(&input)?)?)
+        // Path argument specified. Open file and initialize progress bar.
+        let file = File::open(&input)?;
+        let len = file.metadata()?.len();
+        progress_bar = ProgressBar::new(len);
+        let fmt = "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
+        progress_bar.set_style(
+            ProgressStyle::default_bar()
+                .template(fmt)
+                .progress_chars("#>-"),
+        );
+        Box::new(progress_bar.wrap_read(file))
     } else {
+        // just use stdin
         Box::new(io::stdin())
     };
     let mut reader = csv::ReaderBuilder::new()
