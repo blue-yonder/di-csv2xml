@@ -8,8 +8,6 @@ script:
   - cargo test --verbose --release
 rust:
   - stable
-  - beta
-  - nightly
 os:
   - linux
   - osx
