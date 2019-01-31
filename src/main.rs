@@ -1,4 +1,3 @@
-mod escape_str;
 mod generate_xml;
 mod record_type;
 

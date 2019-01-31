@@ -8,6 +8,7 @@ edition = "2018"
 
 [profile.release]
 lto = true
+panic = "abort"
 
 [dependencies]
 quicli = "0.4.0"
@@ -16,6 +17,7 @@ indicatif = "0.11.0"
 strum = "0.13.0"
 strum_macros = "0.13.0"
 structopt = "0.2.14"
+quick-xml = "0.13.2"
 
 [dev-dependencies]
 assert_cli = "0.6.3"

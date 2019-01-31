@@ -1,30 +1,31 @@
-use crate::{
-    escape_str::escape_str,
-    record_type::RecordType
-};
+use crate::record_type::RecordType;
 use csv;
+use quick_xml::{Writer, events::{Event, BytesDecl, BytesStart, BytesText, BytesEnd}};
 use std::io::{self, Read, Write};
 
 const CUSTOMER_EXTENSION_PREFIX: &str = "CUEX_";
 
 pub fn generate_xml<O: Write, I: Read>(
-    mut out: O,
+    out: O,
     input: &mut csv::Reader<I>,
     category: &str,
     record_type: RecordType,
 ) -> io::Result<()> {
+
+    let mut writer = Writer::new_with_indent(out, b'\t', 1);
     let header = input.headers()?.clone();
     let (customer_extension, standard): (Vec<_>, Vec<_>) =
         (0..header.len()).partition(|&index| header[index].starts_with(CUSTOMER_EXTENSION_PREFIX));
     // Write declaration
-    out.write_all(b"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")?;
+    // <?xml version="1.0" encoding="UTF-8" ?>
+    writer.write_event(Event::Decl(BytesDecl::new(b"1.0", Some(b"UTF-8"), None))).map_err(expect_io_error)?;
     // Open root tag (Category)
-    open_markup(&mut out, category)?;
+    open_markup(&mut writer, category)?;
     // Write one record for each entry in csv
     let mut record = csv::StringRecord::new();
     while input.read_record(&mut record)? {
         write_record(
-            &mut out,
+            &mut writer,
             &Record {
                 standard: &standard,
                 extensions: &customer_extension,
@@ -35,60 +36,71 @@ pub fn generate_xml<O: Write, I: Read>(
         )?;
     }
     // Close root tag (Category)
-    out.write_all(b"\n")?;
-    close_markup(&mut out, category)?;
+    close_markup(&mut writer, category)?;
     Ok(())
 }
 
-fn open_markup<W>(mut out: W, name: &str) -> io::Result<()>
+/// Unwraps io::error, panics if the it is not `quick_xml::Error::Io`
+/// 
+/// Call this then the only possible way to fail for XML writing is IO
+fn expect_io_error(error: quick_xml::Error) -> io::Error {
+    use quick_xml::Error::*;
+    match error {
+        Io(io_error) => io_error,
+        _ => panic!("Unexpected failure: {}", error)
+    }
+}
+
+fn open_markup<W>(writer: &mut Writer<W>, name: &str) -> io::Result<()>
 where
     W: io::Write,
 {
-    out.write_all(b"<")?;
-    out.write_all(name.as_bytes())?;
-    out.write_all(b">")?;
+    writer.write_event(Event::Start(BytesStart::borrowed_name(name.as_bytes()))).map_err(
+        // Only io errors can happen, every other variant should be logically impossible
+        |error| match error {
+            quick_xml::Error::Io(io_error) => io_error,
+            _ => panic!("Unexpected error: {}"),
+        }
+    )?;
     Ok(())
 }
 
-fn write_record<W>(mut out: W, record: &Record<'_>, record_type: &str) -> io::Result<()>
+fn write_record<W>(writer: &mut Writer<W>, record: &Record<'_>, record_type: &str) -> io::Result<()>
 where
     W: io::Write,
 {
-    out.write_all(b"\n\t")?;
-    open_markup(&mut out, record_type)?;
+    open_markup(writer, record_type)?;
     for (name, value) in record.standard() {
-        out.write_all(b"\n\t\t")?;
-        open_markup(&mut out, name)?;
-        out.write_all(escape_str(value).as_bytes())?;
-        close_markup(&mut out, name)?;
+        open_markup(writer, name)?;
+        write_text(writer, value)?;
+        close_markup(writer, name)?;
     }
     // customer extensions
     let mut extensions = record.extensions().peekable();
     if extensions.peek().is_some() {
-        out.write_all(b"\n\t\t")?;
-        open_markup(&mut out, "CustomerExtensions")?;
+        open_markup(writer, "CustomerExtensions")?;
         for (name, value) in record.extensions() {
-            out.write_all(b"\n\t\t\t")?;
-            open_markup(&mut out, name)?;
-            out.write_all(escape_str(value).as_bytes())?;
-            close_markup(&mut out, name)?;
+            open_markup(writer, name)?;
+            write_text(writer, value)?;
+            close_markup(writer, name)?;
         }
-        out.write_all(b"\n\t\t")?;
-        close_markup(&mut out, "CustomerExtensions")?;
+        close_markup(writer, "CustomerExtensions")?;
     }
 
-    out.write_all(b"\n\t")?;
-    close_markup(&mut out, record_type)?;
+    close_markup(writer, record_type)?;
     Ok(())
 }
 
-fn close_markup<W>(mut out: W, name: &str) -> io::Result<()>
+fn write_text<W>(writer: &mut Writer<W>, text: &str) -> io::Result<()> where W : io::Write{
+    writer.write_event(Event::Text(BytesText::from_plain_str(text))).map_err(expect_io_error)?;
+    Ok(())
+}
+
+fn close_markup<W>(writer: &mut Writer<W>, name: &str) -> io::Result<()>
 where
     W: io::Write,
 {
-    out.write_all(b"</")?;
-    out.write_all(name.as_bytes())?;
-    out.write_all(b">")?;
+    writer.write_event(Event::End(BytesEnd::borrowed(name.as_bytes()))).map_err(expect_io_error)?;
     Ok(())
 }
 
