@@ -1,5 +1,5 @@
 use crate::{
-    escape_str::escape_str,
+    escape_str::escape_char_data,
     record_type::RecordType
 };
 use csv;
@@ -22,6 +22,8 @@ pub fn generate_xml<O: Write, I: Read>(
     open_markup(&mut out, category)?;
     // Write one record for each entry in csv
     let mut record = csv::StringRecord::new();
+    // We reuse with buffer to avoid allocations in case we need to escape character data.
+    let mut char_data_buf = String::new();
     while input.read_record(&mut record)? {
         write_record(
             &mut out,
@@ -32,6 +34,7 @@ pub fn generate_xml<O: Write, I: Read>(
                 values: &record,
             },
             record_type.as_str(),
+            &mut char_data_buf
         )?;
     }
     // Close root tag (Category)
@@ -50,7 +53,7 @@ where
     Ok(())
 }
 
-fn write_record<W>(mut out: W, record: &Record<'_>, record_type: &str) -> io::Result<()>
+fn write_record<W>(mut out: W, record: &Record<'_>, record_type: &str, buf: &mut String) -> io::Result<()>
 where
     W: io::Write,
 {
@@ -59,7 +62,7 @@ where
     for (name, value) in record.standard() {
         out.write_all(b"\n\t\t")?;
         open_markup(&mut out, name)?;
-        out.write_all(escape_str(value).as_bytes())?;
+        out.write_all(escape_char_data(value, buf).as_bytes())?;
         close_markup(&mut out, name)?;
     }
     // customer extensions
@@ -70,7 +73,7 @@ where
         for (name, value) in record.extensions() {
             out.write_all(b"\n\t\t\t")?;
             open_markup(&mut out, name)?;
-            out.write_all(escape_str(value).as_bytes())?;
+            out.write_all(escape_char_data(value, buf).as_bytes())?;
             close_markup(&mut out, name)?;
         }
         out.write_all(b"\n\t\t")?;

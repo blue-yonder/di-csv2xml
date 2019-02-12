@@ -1,85 +1,34 @@
-// Copied from Piston which features a permissive MIT LICENSE
-use std::borrow::Cow;
-use std::borrow::Cow::{Borrowed, Owned};
-use std::iter::IntoIterator;
-
-use self::Process::{B, O};
-use self::Value::{C, S};
-
-enum Value {
-    C(char),
-    S(&'static str),
-}
-
-impl Value {
-    fn dispatch(c: char) -> Value {
-        match c {
-            '<' => S("&lt;"),
-            '>' => S("&gt;"),
-            '"' => S("&quot;"),
-            '\'' => S("&apos;"),
-            '&' => S("&amp;"),
-            _ => C(c),
-        }
+fn mask(c: char) -> Option<&'static str> {
+    match c {
+        '<' => Some("&lt;"),
+        '>' => Some("&gt;"),
+        '"' => Some("&quot;"),
+        '\'' => Some("&apos;"),
+        '&' => Some("&amp;"),
+        _ => None,
     }
 }
 
-enum Process<'a> {
-    B(&'a str),
-    O(String),
-}
+pub fn escape_char_data<'a>(unescaped: &'a str, buf: &'a mut String) -> &'a str {
+    // Search for the first character to be escaped. It is worth treating the case of having nothing
+    // to escape seperatly as it is quite common and we do not need to allocate or copy memory in
+    // this case.
+    if let Some((index, _)) = unescaped.char_indices().find(|&(_,c)| mask(c).is_some()){
+        // We need to escape the string. Let's fill the buffer we have been passed, with the
+        // characters we checked so far.
+        let (does_not_need_escaping, to_escape) = unescaped.split_at(index);
+        buf.clear();
+        buf.push_str(does_not_need_escaping);
 
-impl<'a> Process<'a> {
-    fn process(&mut self, (i, next): (usize, Value)) {
-        match next {
-            S(s) => if let O(ref mut o) = *self {
-                o.push_str(s);
-            } else if let B(b) = *self {
-                let mut r = String::with_capacity(b.len());
-                r.push_str(&b[..i]);
-                r.push_str(s);
-                *self = O(r);
-            },
-            C(c) => match *self {
-                B(_) => {}
-                O(ref mut o) => o.push(c),
-            },
+        for c in to_escape.chars(){
+            match mask(c) {
+                None => buf.push(c),
+                Some(s) => buf.push_str(s),
+            }
         }
-    }
 
-    fn into_result(self) -> Cow<'a, str> {
-        match self {
-            B(b) => Borrowed(b),
-            O(o) => Owned(o),
-        }
+        buf.as_str()
+    } else {
+        unescaped
     }
-}
-
-impl<'a> Extend<Value> for Process<'a> {
-    fn extend<I: IntoIterator<Item = Value>>(&mut self, it: I) {
-        for v in it.into_iter().enumerate() {
-            self.process(v);
-        }
-    }
-}
-
-/// Performs escaping of common XML characters.
-///
-/// This function replaces several important markup characters with their
-/// entity equivalents.
-///
-/// * `<` → `&lt;`
-/// * `>` → `&gt;`
-/// * `"` → `&quot;`
-/// * `'` → `&apos;`
-/// * `&` → `&amp;`
-///
-/// The resulting string is safe to use inside XML attribute values or in
-/// PCDATA sections.
-///
-/// Does not perform allocations if the given string does not contain escapable characters.
-pub fn escape_str(s: &str) -> Cow<'_, str> {
-    let mut p = B(s);
-    p.extend(s.chars().map(Value::dispatch));
-    p.into_result()
 }
