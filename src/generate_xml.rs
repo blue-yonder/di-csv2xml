@@ -1,7 +1,4 @@
-use crate::{
-    escape_str::escape_char_data,
-    record_type::RecordType
-};
+use crate::{escape_char_data::escape_char_data, record_type::RecordType};
 use csv;
 use std::io::{self, Read, Write};
 
@@ -34,7 +31,7 @@ pub fn generate_xml<O: Write, I: Read>(
                 values: &record,
             },
             record_type.as_str(),
-            &mut char_data_buf
+            &mut char_data_buf,
         )?;
     }
     // Close root tag (Category)
@@ -53,7 +50,12 @@ where
     Ok(())
 }
 
-fn write_record<W>(mut out: W, record: &Record<'_>, record_type: &str, buf: &mut String) -> io::Result<()>
+fn write_record<W>(
+    mut out: W,
+    record: &Record<'_>,
+    record_type: &str,
+    buf: &mut String,
+) -> io::Result<()>
 where
     W: io::Write,
 {
@@ -110,7 +112,9 @@ struct Record<'a> {
 impl<'a> Record<'a> {
     /// Returns an iterator over all standard tags. `Item = (tag_name, value)`
     fn standard(&self) -> impl Iterator<Item = (&str, &str)> {
-        self.standard.iter().map(move |&index| (&self.tag_names[index], &self.values[index]))
+        self.standard
+            .iter()
+            .map(move |&index| (&self.tag_names[index], &self.values[index]))
             // Empty strings are treated as null and will not be rendered in XML
             .filter(|&(_, ref v)| !v.is_empty())
     }
@@ -120,7 +124,9 @@ impl<'a> Record<'a> {
         // This helps us to cut of the leading 'CUEX_' prefix from tag names
         let skip = CUSTOMER_EXTENSION_PREFIX.len();
 
-        self.extensions.iter().map(move |&index| (&self.tag_names[index][skip..], &self.values[index]))
+        self.extensions
+            .iter()
+            .map(move |&index| (&self.tag_names[index][skip..], &self.values[index]))
             // Empty strings are treated as null and will not be rendered in XML
             .filter(|&(_, ref v)| !v.is_empty())
     }

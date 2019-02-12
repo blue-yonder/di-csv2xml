@@ -1,17 +1,14 @@
-mod escape_str;
+mod escape_char_data;
 mod generate_xml;
 mod record_type;
 
-use crate::{
-    generate_xml::generate_xml,
-    record_type::RecordType
-};
-use indicatif::{ProgressBar, ProgressStyle};
-use strum;
+use crate::{generate_xml::generate_xml, record_type::RecordType};
 use csv;
+use indicatif::{ProgressBar, ProgressStyle};
 use quicli::prelude::*;
-use structopt::StructOpt;
 use std::{fs::File, io};
+use structopt::StructOpt;
+use strum;
 
 /// Reads csv and writes xml. The resulting XML Document is intended for deliveries to the
 /// Blue Yonder Supply and Demand API. This tool only checks for correct utf8 encoding and nothing
