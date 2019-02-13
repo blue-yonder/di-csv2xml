@@ -19,7 +19,7 @@ pub fn generate_xml<O: Write, I: Read>(
     open_markup(&mut out, category)?;
     // Write one record for each entry in csv
     let mut record = csv::StringRecord::new();
-    // We reuse with buffer to avoid allocations in case we need to escape character data.
+    // We reuse this buffer to avoid allocations in case we need to escape character data.
     let mut char_data_buf = String::new();
     while input.read_record(&mut record)? {
         write_record(
