@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.0.6
+-----
+
+* Fixed a Bug during escaping character data for XML. It did cause a panic or faulty output, if in
+  the sequence to escape character points larger than one byte did appear before the first escaped
+  character.
+
 1.0.5
 -----
 
