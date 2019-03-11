@@ -13,9 +13,9 @@ lto = true
 quicli = "0.4.0"
 csv = "1.0.5"
 indicatif = "0.11.0"
-strum = "0.13.0"
-strum_macros = "0.13.0"
-structopt = "0.2.14"
+strum = "0.14.0"
+strum_macros = "0.14.0"
+structopt = "0.2.15"
 
 [dev-dependencies]
 assert_cli = "0.6.3"
