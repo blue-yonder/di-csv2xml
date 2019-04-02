@@ -1,6 +1,9 @@
 use crate::record_type::RecordType;
 use csv;
-use quick_xml::{Writer, events::{Event, BytesDecl, BytesStart, BytesText, BytesEnd}};
+use quick_xml::{
+    events::{BytesDecl, BytesEnd, BytesStart, BytesText, Event},
+    Writer,
+};
 use std::io::{self, Read, Write};
 
 const CUSTOMER_EXTENSION_PREFIX: &str = "CUEX_";
@@ -11,14 +14,15 @@ pub fn generate_xml<O: Write, I: Read>(
     category: &str,
     record_type: RecordType,
 ) -> io::Result<()> {
-
     let mut writer = Writer::new_with_indent(out, b'\t', 1);
     let header = input.headers()?.clone();
     let (customer_extension, standard): (Vec<_>, Vec<_>) =
         (0..header.len()).partition(|&index| header[index].starts_with(CUSTOMER_EXTENSION_PREFIX));
     // Write declaration
     // <?xml version="1.0" encoding="UTF-8" ?>
-    writer.write_event(Event::Decl(BytesDecl::new(b"1.0", Some(b"UTF-8"), None))).map_err(expect_io_error)?;
+    writer
+        .write_event(Event::Decl(BytesDecl::new(b"1.0", Some(b"UTF-8"), None)))
+        .map_err(expect_io_error)?;
     // Open root tag (Category)
     open_markup(&mut writer, category)?;
     // Write one record for each entry in csv
@@ -41,13 +45,13 @@ pub fn generate_xml<O: Write, I: Read>(
 }
 
 /// Unwraps io::error, panics if the it is not `quick_xml::Error::Io`
-/// 
+///
 /// Call this then the only possible way to fail for XML writing is IO
 fn expect_io_error(error: quick_xml::Error) -> io::Error {
     use quick_xml::Error::*;
     match error {
         Io(io_error) => io_error,
-        _ => panic!("Unexpected failure: {}", error)
+        _ => panic!("Unexpected failure: {}", error),
     }
 }
 
@@ -55,13 +59,15 @@ fn open_markup<W>(writer: &mut Writer<W>, name: &str) -> io::Result<()>
 where
     W: io::Write,
 {
-    writer.write_event(Event::Start(BytesStart::borrowed_name(name.as_bytes()))).map_err(
-        // Only io errors can happen, every other variant should be logically impossible
-        |error| match error {
-            quick_xml::Error::Io(io_error) => io_error,
-            _ => panic!("Unexpected error: {}"),
-        }
-    )?;
+    writer
+        .write_event(Event::Start(BytesStart::borrowed_name(name.as_bytes())))
+        .map_err(
+            // Only io errors can happen, every other variant should be logically impossible
+            |error| match error {
+                quick_xml::Error::Io(io_error) => io_error,
+                _ => panic!("Unexpected error: {}"),
+            },
+        )?;
     Ok(())
 }
 
@@ -91,8 +97,13 @@ where
     Ok(())
 }
 
-fn write_text<W>(writer: &mut Writer<W>, text: &str) -> io::Result<()> where W : io::Write{
-    writer.write_event(Event::Text(BytesText::from_plain_str(text))).map_err(expect_io_error)?;
+fn write_text<W>(writer: &mut Writer<W>, text: &str) -> io::Result<()>
+where
+    W: io::Write,
+{
+    writer
+        .write_event(Event::Text(BytesText::from_plain_str(text)))
+        .map_err(expect_io_error)?;
     Ok(())
 }
 
@@ -100,7 +111,9 @@ fn close_markup<W>(writer: &mut Writer<W>, name: &str) -> io::Result<()>
 where
     W: io::Write,
 {
-    writer.write_event(Event::End(BytesEnd::borrowed(name.as_bytes()))).map_err(expect_io_error)?;
+    writer
+        .write_event(Event::End(BytesEnd::borrowed(name.as_bytes())))
+        .map_err(expect_io_error)?;
     Ok(())
 }
 
@@ -119,7 +132,9 @@ struct Record<'a> {
 impl<'a> Record<'a> {
     /// Returns an iterator over all standard tags. `Item = (tag_name, value)`
     fn standard(&self) -> impl Iterator<Item = (&str, &str)> {
-        self.standard.iter().map(move |&index| (&self.tag_names[index], &self.values[index]))
+        self.standard
+            .iter()
+            .map(move |&index| (&self.tag_names[index], &self.values[index]))
             // Empty strings are treated as null and will not be rendered in XML
             .filter(|&(_, ref v)| !v.is_empty())
     }
@@ -129,7 +144,9 @@ impl<'a> Record<'a> {
         // This helps us to cut of the leading 'CUEX_' prefix from tag names
         let skip = CUSTOMER_EXTENSION_PREFIX.len();
 
-        self.extensions.iter().map(move |&index| (&self.tag_names[index][skip..], &self.values[index]))
+        self.extensions
+            .iter()
+            .map(move |&index| (&self.tag_names[index][skip..], &self.values[index]))
             // Empty strings are treated as null and will not be rendered in XML
             .filter(|&(_, ref v)| !v.is_empty())
     }
