@@ -65,7 +65,7 @@ where
             // Only io errors can happen, every other variant should be logically impossible
             |error| match error {
                 quick_xml::Error::Io(io_error) => io_error,
-                _ => panic!("Unexpected error: {}"),
+                e => panic!("Unexpected error: {}", e),
             },
         )?;
     Ok(())
