@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.0.9
+-----
+
+* Updated dependencies
+* Visual C Runtime is now linked statically into windows executable and no longer a runtime requirement.
+* Build with Rust 1.35.0
+
 1.0.8
 -----
 
