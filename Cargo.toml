@@ -1,6 +1,6 @@
 [package]
 name = "di-csv2xml"
-version = "1.0.9"
+version = "1.0.10"
 authors = ["Markus Klein <markus.klein@blue-yonder.com>"]
 license = "MIT"
 publish = false
