@@ -7,10 +7,9 @@ script:
   # On windows we want to link the C-Runtime statically.
   - |
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      cargo rustc --release -- -C target-feature=+crt-static
-    else
-      cargo build --verbose --release
+      export RUSTFLAGS="-C target-feature=+crt-static"
     fi
+  - cargo build --verbose --release
   - cargo test --verbose --release
 rust:
   - stable
