@@ -1,23 +1,20 @@
-use crate::record_type::RecordType;
-use csv;
+use crate::{
+    read_csv::{CsvSource, Record},
+    record_type::RecordType,
+};
 use quick_xml::{
     events::{BytesDecl, BytesEnd, BytesStart, BytesText, Event},
     Writer,
 };
 use std::io::{self, Read, Write};
 
-const CUSTOMER_EXTENSION_PREFIX: &str = "CUEX_";
-
 pub fn generate_xml<O: Write, I: Read>(
     out: O,
-    input: &mut csv::Reader<I>,
+    mut reader: CsvSource<I>,
     category: &str,
     record_type: RecordType,
 ) -> io::Result<()> {
     let mut writer = Writer::new_with_indent(out, b'\t', 1);
-    let header = input.headers()?.clone();
-    let (customer_extension, standard): (Vec<_>, Vec<_>) =
-        (0..header.len()).partition(|&index| header[index].starts_with(CUSTOMER_EXTENSION_PREFIX));
     // Write declaration
     // <?xml version="1.0" encoding="UTF-8" ?>
     writer
@@ -25,19 +22,9 @@ pub fn generate_xml<O: Write, I: Read>(
         .map_err(expect_io_error)?;
     // Open root tag (Category)
     open_markup(&mut writer, category)?;
-    // Write one record for each entry in csv
-    let mut record = csv::StringRecord::new();
-    while input.read_record(&mut record)? {
-        write_record(
-            &mut writer,
-            &Record {
-                standard: &standard,
-                extensions: &customer_extension,
-                tag_names: &header,
-                values: &record,
-            },
-            record_type.as_str(),
-        )?;
+    while let Some(record) = reader.read_record()? {
+        // Write one record for each entry in csv
+        write_record(&mut writer, &record, record_type.as_str())?;
     }
     // Close root tag (Category)
     close_markup(&mut writer, category)?;
@@ -115,39 +102,4 @@ where
         .write_event(Event::End(BytesEnd::borrowed(name.as_bytes())))
         .map_err(expect_io_error)?;
     Ok(())
-}
-
-/// Represents one XML record
-struct Record<'a> {
-    /// Indices of standard records within csv
-    standard: &'a [usize],
-    /// Indices of extension records within csv
-    extensions: &'a [usize],
-    /// Header of csv provides tag names
-    tag_names: &'a csv::StringRecord,
-    /// Csv row which provides the values of this record
-    values: &'a csv::StringRecord,
-}
-
-impl<'a> Record<'a> {
-    /// Returns an iterator over all standard tags. `Item = (tag_name, value)`
-    fn standard(&self) -> impl Iterator<Item = (&str, &str)> {
-        self.standard
-            .iter()
-            .map(move |&index| (&self.tag_names[index], &self.values[index]))
-            // Empty strings are treated as null and will not be rendered in XML
-            .filter(|&(_, ref v)| !v.is_empty())
-    }
-
-    /// Returns an iterator over all customer extension tags. `Item = (tag_name, value)`
-    fn extensions(&self) -> impl Iterator<Item = (&str, &str)> {
-        // This helps us to cut of the leading 'CUEX_' prefix from tag names
-        let skip = CUSTOMER_EXTENSION_PREFIX.len();
-
-        self.extensions
-            .iter()
-            .map(move |&index| (&self.tag_names[index][skip..], &self.values[index]))
-            // Empty strings are treated as null and will not be rendered in XML
-            .filter(|&(_, ref v)| !v.is_empty())
-    }
 }

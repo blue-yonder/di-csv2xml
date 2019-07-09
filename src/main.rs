@@ -1,8 +1,8 @@
 mod generate_xml;
+mod read_csv;
 mod record_type;
 
-use crate::{generate_xml::generate_xml, record_type::RecordType};
-use csv;
+use crate::{generate_xml::generate_xml, read_csv::CsvSource, record_type::RecordType};
 use indicatif::{ProgressBar, ProgressStyle};
 use quicli::prelude::*;
 use std::{fs::File, io};
@@ -58,15 +58,13 @@ fn main() -> CliResult {
         // just use stdin
         Box::new(io::stdin())
     };
-    let mut reader = csv::ReaderBuilder::new()
-        .delimiter(args.delimiter as u8)
-        .from_reader(input);
+    let reader = CsvSource::new(input, args.delimiter as u8)?;
 
     let mut out: Box<dyn io::Write> = if let Some(output) = args.output {
         Box::new(io::BufWriter::new(File::create(&output)?))
     } else {
         Box::new(io::stdout())
     };
-    generate_xml(&mut out, &mut reader, &args.category, args.record_type)?;
+    generate_xml(&mut out, reader, &args.category, args.record_type)?;
     Ok(())
 }
