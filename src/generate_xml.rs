@@ -8,6 +8,12 @@ use quick_xml::{
 };
 use std::io::{self, Read, Write};
 
+/// Emmits XML to `out`. One record for each record found in `reader`.
+/// 
+/// The resulting XML is compatible with the Blue Yonder Supply and demand API. All customer
+/// extensions are placed within a `CustomerExtenstion` tag in within the record. `category` is used
+/// for the root tag name. `record_type` switches betwenn `<Record>`, `<DeleteRecord>` and
+/// `<DeleteAllRecords>` in markup.
 pub fn generate_xml<O: Write, I: Read>(
     out: O,
     mut reader: CsvSource<I>,
@@ -48,13 +54,7 @@ where
 {
     writer
         .write_event(Event::Start(BytesStart::borrowed_name(name.as_bytes())))
-        .map_err(
-            // Only io errors can happen, every other variant should be logically impossible
-            |error| match error {
-                quick_xml::Error::Io(io_error) => io_error,
-                e => panic!("Unexpected error: {}", e),
-            },
-        )?;
+        .map_err(expect_io_error)?;
     Ok(())
 }
 
