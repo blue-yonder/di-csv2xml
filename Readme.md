@@ -90,6 +90,9 @@ As this tool does not provide any schema validation, it is important to note tha
 Any typo in the parameter `category` or the header column of the csv-file is directly translated into the
 dedicated XML-tag, leading to potential errors when attempting to process the XML-file further.
 
+
+![demo](./di-csv2xml-demo.gif)
+
 Support
 -------
 
