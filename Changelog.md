@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.0.15
+------
+
+* Updated dependencies
+* Build with Rust 1.40.0
+* Does not show progress bar if writing to stdout
+
 1.0.14
 ------
 

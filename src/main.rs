@@ -45,15 +45,20 @@ fn main() -> CliResult {
     let input: Box<dyn io::Read> = if let Some(input) = args.input {
         // Path argument specified. Open file and initialize progress bar.
         let file = File::open(&input)?;
-        let len = file.metadata()?.len();
-        progress_bar = ProgressBar::new(len);
-        let fmt = "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
-        progress_bar.set_style(
-            ProgressStyle::default_bar()
-                .template(fmt)
-                .progress_chars("#>-"),
-        );
-        Box::new(progress_bar.wrap_read(file))
+        // Progress bar interferes with formatting if stdout and stderr both go to console
+        if args.output.is_some() {
+            let len = file.metadata()?.len();
+            progress_bar = ProgressBar::new(len);
+            let fmt = "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
+            progress_bar.set_style(
+                ProgressStyle::default_bar()
+                    .template(fmt)
+                    .progress_chars("#>-"),
+            );
+            Box::new(progress_bar.wrap_read(file))
+        } else {
+            Box::new(file)
+        }
     } else {
         // just use stdin
         Box::new(io::stdin())
