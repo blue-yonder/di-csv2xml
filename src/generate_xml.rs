@@ -8,11 +8,11 @@ use quick_xml::{
 };
 use std::io::{self, Read, Write};
 
-/// Emmits XML to `out`. One record for each record found in `reader`.
+/// Emits XML to `out`. One record for each record found in `reader`.
 /// 
 /// The resulting XML is compatible with the Blue Yonder Supply and demand API. All customer
-/// extensions are placed within a `CustomerExtenstion` tag in within the record. `category` is used
-/// for the root tag name. `record_type` switches betwenn `<Record>`, `<DeleteRecord>` and
+/// extensions are placed within a `CustomerExtension` tag in within the record. `category` is used
+/// for the root tag name. `record_type` switches between `<Record>`, `<DeleteRecord>` and
 /// `<DeleteAllRecords>` in markup.
 pub fn generate_xml<O: Write, I: Read>(
     out: O,
