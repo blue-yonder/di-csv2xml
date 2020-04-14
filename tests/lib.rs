@@ -11,6 +11,16 @@ fn simple() {
 }
 
 #[test]
+fn input_gz() {
+    assert_cli::Assert::main_binary()
+        .with_args(&["Category", "--input", "tests/input.csv.gz"])
+        .succeeds()
+        .stdout()
+        .is(include_str!("output.xml").replace("\r\n", "\n").as_str())
+        .unwrap();
+}
+
+#[test]
 fn mask_text() {
     assert_cli::Assert::main_binary()
         .with_args(&["Text", "--input", "tests/text.csv"])

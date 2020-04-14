@@ -4,8 +4,9 @@ mod record_type;
 
 use crate::{generate_xml::generate_xml, read_csv::CsvSource, record_type::RecordType};
 use indicatif::{ProgressBar, ProgressStyle};
+use libflate::gzip;
 use quicli::prelude::*;
-use std::{fs::File, io};
+use std::{fs::File, io, path::Path};
 use structopt::StructOpt;
 use strum;
 
@@ -55,21 +56,46 @@ fn main() -> CliResult {
                     .template(fmt)
                     .progress_chars("#>-"),
             );
-            Box::new(progress_bar.wrap_read(file))
+            let file_with_pbar = progress_bar.wrap_read(file);
+
+            if has_gz_extension(&input) {
+                Box::new(gzip::Decoder::new(file_with_pbar)?)
+            } else {
+                Box::new(file_with_pbar)
+            }
         } else {
-            Box::new(file)
+            // Repeat if to avoid extra Box.
+            if has_gz_extension(&input) {
+                Box::new(gzip::Decoder::new(file)?)
+            } else {
+                Box::new(file)
+            }
         }
     } else {
         // just use stdin
         Box::new(io::stdin())
     };
+
     let reader = CsvSource::new(input, args.delimiter as u8)?;
 
     let mut out: Box<dyn io::Write> = if let Some(output) = args.output {
-        Box::new(io::BufWriter::new(File::create(&output)?))
+        let writer = io::BufWriter::new(File::create(&output)?);
+
+        if has_gz_extension(&output) {
+            Box::new(gzip::Encoder::new(writer)?)
+        } else {
+            Box::new(writer)
+        }
     } else {
         Box::new(io::stdout())
     };
     generate_xml(&mut out, reader, &args.category, args.record_type)?;
     Ok(())
+}
+
+fn has_gz_extension(path: &Path) -> bool {
+    match path.extension() {
+        Some(ext) if ext == "gz" => true,
+        _ => false,
+    }
 }

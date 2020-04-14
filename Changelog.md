@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0.16
+------
+
+* Support for zipped file extensions
+
 1.0.15
 ------
 
