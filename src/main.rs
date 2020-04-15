@@ -43,6 +43,16 @@ fn main() -> CliResult {
     // program execution, so it will be displayed.
     let progress_bar;
 
+    // Keep our reference to stdin alive, if need be. Only initialized if we don't read from a file
+    // and read from stdin. We hold it alive at top level scop, so we can hold the lock to it, for
+    // duration of the program.
+    let std_in;
+
+    // Same story for `std_out` as for stdin. We keep it alive for the duration of the program, but
+    // delay initiaization until we know we need it (i.e. we are writing to stdout and not into a
+    // file, we open in this code).
+    let std_out;
+
     let input: Box<dyn io::Read> = if let Some(input) = args.input {
         // Path argument specified. Open file and initialize progress bar.
         let file = File::open(&input)?;
@@ -81,7 +91,8 @@ fn main() -> CliResult {
         }
     } else {
         // Input path not set => Just use stdin
-        Box::new(io::stdin())
+        std_in = io::stdin();
+        Box::new(std_in.lock())
     };
 
     let reader = CsvSource::new(input, args.delimiter as u8)?;
@@ -95,15 +106,21 @@ fn main() -> CliResult {
             Box::new(writer)
         }
     } else {
-        Box::new(io::stdout())
+        std_out = io::stdout();
+        Box::new(std_out.lock())
     };
     generate_xml(&mut out, reader, &args.category, args.record_type)?;
     Ok(())
 }
 
+/// Takes a path and returns `true` if the path ends in a `.gz` extension.
 fn has_gz_extension(path: &Path) -> bool {
     match path.extension() {
         Some(ext) if ext == "gz" => true,
         _ => false,
     }
 }
+
+// fn wrap_reader<R>() -> Box<dyn io::Read> {
+
+// }
