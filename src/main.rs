@@ -3,6 +3,7 @@ mod read_csv;
 mod record_type;
 
 use crate::{generate_xml::generate_xml, read_csv::CsvSource, record_type::RecordType};
+use atty::{isnt, Stream};
 use flate2::{bufread::GzDecoder, GzBuilder};
 use indicatif::{ProgressBar, ProgressStyle};
 use quicli::prelude::*;
@@ -56,14 +57,14 @@ fn main() -> CliResult {
     let input: Box<dyn io::Read> = if let Some(input) = args.input {
         // Path argument specified. Open file and initialize progress bar.
         let file = File::open(&input)?;
-        // Only show Progress bar, if both input and output are files.
+        // Only show Progress bar, if input is a file and output is not /dev/tty.
         //
         // * We need the input to so we have the file metadata and therefore file length, to know
         // the amount of data we are going to proccess. Otherwise we can't set the length of the
         // progress bar.
-        // * We don't want the Progress bar to interfere with the output, if writing to stdout.
-        // Progress bar interferes with formatting if stdout and stderr both go to console
-        if args.output.is_some() {
+        // * We don't want the Progress bar to interfere with the output, if writing to /dev/tty.
+        // Progress bar interferes with formatting if stdout and stderr both go to /dev/tty
+        if args.output.is_some() || isnt(Stream::Stdout) {
             let len = file.metadata()?.len();
             progress_bar = ProgressBar::new(len);
             let fmt = "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
@@ -80,7 +81,7 @@ fn main() -> CliResult {
                 Box::new(file_with_pbar)
             }
         } else {
-            // Input file, but writing to stdout
+            // Input file, but writing output to /dev/tty
 
             // Repeat if to avoid extra Box.
             if has_gz_extension(&input) {
@@ -120,7 +121,3 @@ fn has_gz_extension(path: &Path) -> bool {
         _ => false,
     }
 }
-
-// fn wrap_reader<R>() -> Box<dyn io::Read> {
-
-// }
