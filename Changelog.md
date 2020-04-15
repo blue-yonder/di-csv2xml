@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0.18
+------
+
+* Small speedup than using stdin, stdout.
+
 1.0.17
 ------
 
