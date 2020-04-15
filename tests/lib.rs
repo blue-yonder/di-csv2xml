@@ -1,99 +1,93 @@
-use assert_cli;
+use assert_cmd::Command;
 use std::{fs::File, io::Read};
 use tempfile::tempdir;
 
 #[test]
 fn simple() {
-    assert_cli::Assert::main_binary()
-        .with_args(&["Category", "--input", "tests/input.csv"])
-        .succeeds()
-        .stdout()
-        .is(include_str!("output.xml").replace("\r\n", "\n").as_str())
-        .unwrap();
+    Command::cargo_bin("di-csv2xml")
+        .unwrap()
+        .args(&["Category", "--input", "tests/input.csv"])
+        .assert()
+        .success()
+        .stdout(include_str!("output.xml").replace("\r\n", "\n"));
 }
 
 #[test]
 fn input_gz() {
-    assert_cli::Assert::main_binary()
-        .with_args(&["Category", "--input", "tests/input.csv.gz"])
-        .succeeds()
-        .stdout()
-        .is(include_str!("output.xml").replace("\r\n", "\n").as_str())
-        .unwrap();
+    Command::cargo_bin("di-csv2xml")
+        .unwrap()
+        .args(&["Category", "--input", "tests/input.csv.gz"])
+        .assert()
+        .success()
+        .stdout(include_str!("output.xml").replace("\r\n", "\n"));
 }
 
 #[test]
 fn mask_text() {
-    assert_cli::Assert::main_binary()
-        .with_args(&["Text", "--input", "tests/text.csv"])
-        .succeeds()
-        .stdout()
-        .is(include_str!("text.xml").replace("\r\n", "\n").as_str())
-        .unwrap();
+    Command::cargo_bin("di-csv2xml")
+        .unwrap()
+        .args(&["Text", "--input", "tests/text.csv"])
+        .assert()
+        .success()
+        .stdout(include_str!("text.xml").replace("\r\n", "\n"));
 }
 
 #[test]
 fn semicolon_delimiter() {
-    assert_cli::Assert::main_binary()
-        .with_args(&[
+    Command::cargo_bin("di-csv2xml")
+        .unwrap()
+        .args(&[
             "Category",
             "--input",
             "tests/sem_delim.csv",
             "--delimiter",
             ";",
         ])
-        .succeeds()
-        .stdout()
-        .is(include_str!("output.xml").replace("\r\n", "\n").as_str())
-        .unwrap();
+        .assert()
+        .success()
+        .stdout(include_str!("output.xml").replace("\r\n", "\n"));
 }
 
 #[test]
 fn delete_record() {
-    assert_cli::Assert::main_binary()
-        .with_args(&[
+    Command::cargo_bin("di-csv2xml")
+        .unwrap()
+        .args(&[
             "Root",
             "--input",
             "tests/simple.csv",
             "--record-type",
             "DeleteRecord",
         ])
-        .succeeds()
-        .stdout()
-        .is(include_str!("simple_delete.xml")
-            .replace("\r\n", "\n")
-            .as_str())
-        .unwrap();
+        .assert()
+        .success()
+        .stdout(include_str!("simple_delete.xml").replace("\r\n", "\n"));
 }
 
 #[test]
 fn delete_all() {
-    assert_cli::Assert::main_binary()
-        .with_args(&[
+    Command::cargo_bin("di-csv2xml")
+        .unwrap()
+        .args(&[
             "Root",
             "--input",
             "tests/simple.csv",
             "--record-type",
             "DeleteAllRecords",
         ])
-        .succeeds()
-        .stdout()
-        .is(include_str!("simple_delete_all.xml")
-            .replace("\r\n", "\n")
-            .as_str())
-        .unwrap();
+        .assert()
+        .success()
+        .stdout(include_str!("simple_delete_all.xml").replace("\r\n", "\n"));
 }
 
 #[test]
 fn customer_extensions() {
-    assert_cli::Assert::main_binary()
-        .with_args(&["Root", "--input", "tests/customer_extensions.csv"])
-        .succeeds()
-        .stdout()
-        .is(include_str!("customer_extensions.xml")
-            .replace("\r\n", "\n")
-            .as_str())
-        .unwrap();
+    Command::cargo_bin("di-csv2xml")
+        .unwrap()
+        .args(&["Root", "--input", "tests/customer_extensions.csv"])
+        .assert()
+        .success()
+        .stdout(include_str!("customer_extensions.xml").replace("\r\n", "\n"));
 }
 
 #[test]
@@ -103,16 +97,17 @@ fn write_gz() {
     // Magic ".gz" file ending tells tool to compress data
     let out_path = out_dir.path().join("output-xml.gz");
     let out_str = out_path.to_str().expect("Tempfile path must be utf8");
-    assert_cli::Assert::main_binary()
-        .with_args(&[
+    Command::cargo_bin("di-csv2xml")
+        .unwrap()
+        .args(&[
             "Category",
             "--input",
             "tests/input.csv",
             "--output",
             out_str,
         ])
-        .succeeds()
-        .unwrap();
+        .assert()
+        .success();
 
     // Compare output file with expectation
     let mut expected = Vec::new();
