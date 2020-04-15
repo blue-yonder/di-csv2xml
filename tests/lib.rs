@@ -1,4 +1,6 @@
 use assert_cli;
+use std::{fs::File, io::Read};
+use tempfile::tempdir;
 
 #[test]
 fn simple() {
@@ -92,4 +94,43 @@ fn customer_extensions() {
             .replace("\r\n", "\n")
             .as_str())
         .unwrap();
+}
+
+#[test]
+fn write_gz() {
+    let out_dir = tempdir().unwrap();
+
+    // Magic ".gz" file ending tells tool to compress data
+    let out_path = out_dir.path().join("output-xml.gz");
+    let out_str = out_path.to_str().expect("Tempfile path must be utf8");
+    assert_cli::Assert::main_binary()
+        .with_args(&[
+            "Category",
+            "--input",
+            "tests/input.csv",
+            "--output",
+            out_str,
+        ])
+        .succeeds()
+        .unwrap();
+
+    // // Compare output file with expectation
+    // let mut expected = Vec::new();
+    // File::open("tests/output.xml.gz")
+    //     .unwrap()
+    //     .read_to_end(&mut expected)
+    //     .unwrap();
+
+    // let mut actual = Vec::new();
+    // File::open(out_path)
+    //     .unwrap()
+    //     .read_to_end(&mut actual)
+    //     .unwrap();
+
+    // assert_eq!(expected, actual);
+
+    // By closing the `out_dir` explicitly, we can check that it has been deleted successfully. If
+    // we don't close it explicitly, the file will still be deleted when `file` goes out of scope,
+    // but we won't know whether deleting the file succeeded.
+    out_dir.close().unwrap();
 }
