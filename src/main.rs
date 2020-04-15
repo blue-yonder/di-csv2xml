@@ -3,8 +3,8 @@ mod read_csv;
 mod record_type;
 
 use crate::{generate_xml::generate_xml, read_csv::CsvSource, record_type::RecordType};
+use flate2::{bufread::GzDecoder, GzBuilder};
 use indicatif::{ProgressBar, ProgressStyle};
-use libflate::gzip;
 use quicli::prelude::*;
 use std::{fs::File, io, path::Path};
 use structopt::StructOpt;
@@ -19,17 +19,17 @@ struct Cli {
     #[structopt()]
     category: String,
     /// Path to input file. If ommited STDIN is used for input.
-    #[structopt(long = "input", short = "i", parse(from_os_str))]
+    #[structopt(long, short = "i", parse(from_os_str))]
     input: Option<std::path::PathBuf>,
     /// Path to output file. If ommited output is written to STDOUT.
-    #[structopt(long = "output", short = "o", parse(from_os_str))]
+    #[structopt(long, short = "o", parse(from_os_str))]
     output: Option<std::path::PathBuf>,
     /// Record type of generated XML. Should be either Record, DeleteRecord, DeleteAllRecords.
     #[structopt(long = "record-type", short = "r", default_value = "Record")]
     record_type: RecordType,
     /// Character used as delimiter between csv columns. While this tool assumes utf8 encoding,
     /// only ASCII delimiters are supported.
-    #[structopt(long = "delimiter", short = "d", default_value = ",")]
+    #[structopt(long, short = "d", default_value = ",")]
     delimiter: char,
 }
 
@@ -46,6 +46,12 @@ fn main() -> CliResult {
     let input: Box<dyn io::Read> = if let Some(input) = args.input {
         // Path argument specified. Open file and initialize progress bar.
         let file = File::open(&input)?;
+        // Only show Progress bar, if both input and output are files.
+        //
+        // * We need the input to so we have the file metadata and therefore file length, to know
+        // the amount of data we are going to proccess. Otherwise we can't set the length of the
+        // progress bar.
+        // * We don't want the Progress bar to interfere with the output, if writing to stdout.
         // Progress bar interferes with formatting if stdout and stderr both go to console
         if args.output.is_some() {
             let len = file.metadata()?.len();
@@ -59,20 +65,22 @@ fn main() -> CliResult {
             let file_with_pbar = progress_bar.wrap_read(file);
 
             if has_gz_extension(&input) {
-                Box::new(gzip::Decoder::new(file_with_pbar)?)
+                Box::new(GzDecoder::new(io::BufReader::new(file_with_pbar)))
             } else {
                 Box::new(file_with_pbar)
             }
         } else {
+            // Input file, but writing to stdout
+
             // Repeat if to avoid extra Box.
             if has_gz_extension(&input) {
-                Box::new(gzip::Decoder::new(file)?)
+                Box::new(GzDecoder::new(io::BufReader::new(file)))
             } else {
                 Box::new(file)
             }
         }
     } else {
-        // just use stdin
+        // Input path not set => Just use stdin
         Box::new(io::stdin())
     };
 
@@ -82,7 +90,7 @@ fn main() -> CliResult {
         let writer = io::BufWriter::new(File::create(&output)?);
 
         if has_gz_extension(&output) {
-            Box::new(gzip::Encoder::new(writer)?)
+            Box::new(GzBuilder::new().write(writer, Default::default()))
         } else {
             Box::new(writer)
         }

@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.0.17
+------
+
+* Update dependencies
+* Use flate2 for compression / decompression
+* Speedup for compressing / decompressing files, through inserting io buffers.
+
 1.0.16
 ------
 
