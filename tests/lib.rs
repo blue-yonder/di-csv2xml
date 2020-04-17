@@ -6,7 +6,18 @@ use tempfile::tempdir;
 fn simple() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&["Category", "--input", "tests/input.csv"])
+        .args(&["--category", "Category", "--input", "tests/input.csv"])
+        .assert()
+        .success()
+        .stdout(include_str!("output.xml").replace("\r\n", "\n"));
+}
+
+#[test]
+fn simple_stdin() {
+    Command::cargo_bin("di-csv2xml")
+        .unwrap()
+        .write_stdin(include_str!("input.csv").replace("\r\n", "\n"))
+        .args(&["--category", "Category", "--input", "-"])
         .assert()
         .success()
         .stdout(include_str!("output.xml").replace("\r\n", "\n"));
@@ -16,7 +27,7 @@ fn simple() {
 fn input_gz() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&["Category", "--input", "tests/input.csv.gz"])
+        .args(&["--category", "Category", "--input", "tests/input.csv.gz"])
         .assert()
         .success()
         .stdout(include_str!("output.xml").replace("\r\n", "\n"));
@@ -26,7 +37,7 @@ fn input_gz() {
 fn mask_text() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&["Text", "--input", "tests/text.csv"])
+        .args(&["--category", "Text", "--input", "tests/text.csv"])
         .assert()
         .success()
         .stdout(include_str!("text.xml").replace("\r\n", "\n"));
@@ -37,6 +48,7 @@ fn semicolon_delimiter() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
         .args(&[
+            "--category",
             "Category",
             "--input",
             "tests/sem_delim.csv",
@@ -53,6 +65,7 @@ fn delete_record() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
         .args(&[
+            "--category",
             "Root",
             "--input",
             "tests/simple.csv",
@@ -69,6 +82,7 @@ fn delete_all() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
         .args(&[
+            "--category",
             "Root",
             "--input",
             "tests/simple.csv",
@@ -84,7 +98,12 @@ fn delete_all() {
 fn customer_extensions() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&["Root", "--input", "tests/customer_extensions.csv"])
+        .args(&[
+            "--category",
+            "Root",
+            "--input",
+            "tests/customer_extensions.csv",
+        ])
         .assert()
         .success()
         .stdout(include_str!("customer_extensions.xml").replace("\r\n", "\n"));
@@ -100,6 +119,7 @@ fn write_gz() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
         .args(&[
+            "--category",
             "Category",
             "--input",
             "tests/input.csv",

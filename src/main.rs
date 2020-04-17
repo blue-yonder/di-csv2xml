@@ -7,7 +7,12 @@ use atty::{isnt, Stream};
 use flate2::{bufread::GzDecoder, GzBuilder};
 use indicatif::{ProgressBar, ProgressStyle};
 use quicli::prelude::*;
-use std::{fs::File, io, path::Path};
+use std::{
+    fs::File,
+    io,
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 use structopt::StructOpt;
 use strum;
 
@@ -17,14 +22,14 @@ use strum;
 #[derive(Debug, StructOpt)]
 struct Cli {
     /// Root tag of generated XML.
-    #[structopt()]
+    #[structopt(long, short = "c")]
     category: String,
-    /// Path to input file. If ommited STDIN is used for input.
-    #[structopt(long, short = "i", parse(from_os_str))]
-    input: Option<std::path::PathBuf>,
-    /// Path to output file. If ommited output is written to STDOUT.
-    #[structopt(long, short = "o", parse(from_os_str))]
-    output: Option<std::path::PathBuf>,
+    /// Path to input file. Set to "-" to use STDIN instead of a file.
+    #[structopt(long, short = "i")]
+    input: IoArg,
+    /// Path to output file. Leave out or set to "-" to use STDOUT instead of a file.
+    #[structopt(long, short = "o", default_value = "-")]
+    output: IoArg,
     /// Record type of generated XML. Should be either Record, DeleteRecord, DeleteAllRecords.
     #[structopt(long = "record-type", short = "r", default_value = "Record")]
     record_type: RecordType,
@@ -32,6 +37,40 @@ struct Cli {
     /// only ASCII delimiters are supported.
     #[structopt(long, short = "d", default_value = ",")]
     delimiter: char,
+}
+
+/// IO argument for CLI tools which can either take a file or STDIN/STDOUT.
+///
+/// Caveat: stdin is represented as "-" at the command line. Which means your tool is going to have
+/// a hard time operating on a file named "-".
+#[derive(Debug)]
+enum IoArg {
+    /// Indicates that the IO is connected to stdin/stdout. Represented as a "-" on the command line.
+    StdStream,
+    /// Indicates that the IO is connected to a file. Contains the file path. Just enter a path
+    /// at the command line.
+    File(PathBuf),
+}
+
+impl IoArg {
+    fn is_file(&self) -> bool {
+        match self {
+            IoArg::StdStream => false,
+            IoArg::File(_) => true,
+        }
+    }
+}
+
+impl FromStr for IoArg {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let out = match s {
+            "-" => IoArg::StdStream,
+            other => IoArg::File(other.into()),
+        };
+        Ok(out)
+    }
 }
 
 fn main() -> CliResult {
@@ -54,61 +93,68 @@ fn main() -> CliResult {
     // file, we open in this code).
     let std_out;
 
-    let input: Box<dyn io::Read> = if let Some(input) = args.input {
-        // Path argument specified. Open file and initialize progress bar.
-        let file = File::open(&input)?;
-        // Only show Progress bar, if input is a file and output is not /dev/tty.
-        //
-        // * We need the input to so we have the file metadata and therefore file length, to know
-        // the amount of data we are going to proccess. Otherwise we can't set the length of the
-        // progress bar.
-        // * We don't want the Progress bar to interfere with the output, if writing to /dev/tty.
-        // Progress bar interferes with formatting if stdout and stderr both go to /dev/tty
-        if args.output.is_some() || isnt(Stream::Stdout) {
-            let len = file.metadata()?.len();
-            progress_bar = ProgressBar::new(len);
-            let fmt = "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
-            progress_bar.set_style(
-                ProgressStyle::default_bar()
-                    .template(fmt)
-                    .progress_chars("#>-"),
-            );
-            let file_with_pbar = progress_bar.wrap_read(file);
+    let input: Box<dyn io::Read> = match args.input {
+        IoArg::File(input) => {
+            // Path argument specified. Open file and initialize progress bar.
+            let file = File::open(&input)?;
+            // Only show Progress bar, if input is a file and output is not /dev/tty.
+            //
+            // * We need the input to so we have the file metadata and therefore file length, to know
+            // the amount of data we are going to proccess. Otherwise we can't set the length of the
+            // progress bar.
+            // * We don't want the Progress bar to interfere with the output, if writing to /dev/tty.
+            // Progress bar interferes with formatting if stdout and stderr both go to /dev/tty
+            if args.output.is_file() || isnt(Stream::Stdout) {
+                let len = file.metadata()?.len();
+                progress_bar = ProgressBar::new(len);
+                let fmt = "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
+                progress_bar.set_style(
+                    ProgressStyle::default_bar()
+                        .template(fmt)
+                        .progress_chars("#>-"),
+                );
+                let file_with_pbar = progress_bar.wrap_read(file);
 
-            if has_gz_extension(&input) {
-                Box::new(GzDecoder::new(io::BufReader::new(file_with_pbar)))
+                if has_gz_extension(&input) {
+                    Box::new(GzDecoder::new(io::BufReader::new(file_with_pbar)))
+                } else {
+                    Box::new(file_with_pbar)
+                }
             } else {
-                Box::new(file_with_pbar)
-            }
-        } else {
-            // Input file, but writing output to /dev/tty
+                // Input file, but writing output to /dev/tty
 
-            // Repeat if to avoid extra Box.
-            if has_gz_extension(&input) {
-                Box::new(GzDecoder::new(io::BufReader::new(file)))
-            } else {
-                Box::new(file)
+                // Repeat if to avoid extra Box.
+                if has_gz_extension(&input) {
+                    Box::new(GzDecoder::new(io::BufReader::new(file)))
+                } else {
+                    Box::new(file)
+                }
             }
         }
-    } else {
-        // Input path not set => Just use stdin
-        std_in = io::stdin();
-        Box::new(std_in.lock())
+        IoArg::StdStream => {
+            // Input path not set => Just use stdin
+            std_in = io::stdin();
+            Box::new(std_in.lock())
+        }
     };
 
     let reader = CsvSource::new(input, args.delimiter as u8)?;
 
-    let mut out: Box<dyn io::Write> = if let Some(output) = args.output {
-        let writer = io::BufWriter::new(File::create(&output)?);
+    let mut out: Box<dyn io::Write> = match args.output {
+        IoArg::File(output) => {
+            let writer = io::BufWriter::new(File::create(&output)?);
 
-        if has_gz_extension(&output) {
-            Box::new(GzBuilder::new().write(writer, Default::default()))
-        } else {
+            if has_gz_extension(&output) {
+                Box::new(GzBuilder::new().write(writer, Default::default()))
+            } else {
+                Box::new(writer)
+            }
+        }
+        IoArg::StdStream => {
+            std_out = io::stdout();
+            let writer = io::BufWriter::new(std_out.lock());
             Box::new(writer)
         }
-    } else {
-        std_out = io::stdout();
-        Box::new(std_out.lock())
     };
     generate_xml(&mut out, reader, &args.category, args.record_type)?;
     Ok(())

@@ -27,7 +27,7 @@ Usage
 -----
 
 ```bash
-di-csv2xml Category -i input.csv -o output.xml
+di-csv2xml --category Category --input input.csv --output output.xml
 ```
 
 converts this `input.csv` file
@@ -56,6 +56,12 @@ into this `output.xml`:
         <D>8</D>
     </Record>
 </Category>
+```
+
+The shell's pipe functionality can be leveraged to produce the same result:
+
+```bash
+cat input.csv | di-csv2xml --category Category --input - > output.xml
 ```
 
 Each line of the `input.csv` file is transformed into a separate XML-record. These are globally
@@ -89,9 +95,6 @@ For more information, please use `di-csv2xml --help`.
 As this tool does not provide any schema validation, it is important to note that you get what you typed.
 Any typo in the parameter `category` or the header column of the csv-file is directly translated into the
 dedicated XML-tag, leading to potential errors when attempting to process the XML-file further.
-
-
-![demo](./di-csv2xml-demo.gif)
 
 Support
 -------
