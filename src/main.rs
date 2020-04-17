@@ -12,6 +12,7 @@ use std::{
     io,
     path::{Path, PathBuf},
     str::FromStr,
+    time::Instant,
 };
 use structopt::StructOpt;
 use strum;
@@ -81,7 +82,18 @@ fn main() -> CliResult {
     //
     // We keep this in top level scope, since we want the progress bar to live during the whole
     // program execution, so it will be displayed.
-    let progress_bar;
+    let progress_bar = if args.input.is_file() && (args.output.is_file() || isnt(Stream::Stdout)) {
+        let progress_bar = ProgressBar::new(0);
+        let fmt = "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
+        progress_bar.set_style(
+            ProgressStyle::default_bar()
+                .template(fmt)
+                .progress_chars("#>-"),
+        );
+        Some(progress_bar)
+    } else {
+        None
+    };
 
     // Keep our reference to stdin alive, if need be. Only initialized if we don't read from a file
     // and read from stdin. We hold it alive at top level scop, so we can hold the lock to it, for
@@ -92,6 +104,9 @@ fn main() -> CliResult {
     // delay initiaization until we know we need it (i.e. we are writing to stdout and not into a
     // file, we open in this code).
     let std_out;
+
+    // Initial time measurement
+    let initial_time = Instant::now();
 
     let input: Box<dyn io::Read> = match args.input {
         IoArg::File(input) => {
@@ -104,15 +119,9 @@ fn main() -> CliResult {
             // progress bar.
             // * We don't want the Progress bar to interfere with the output, if writing to /dev/tty.
             // Progress bar interferes with formatting if stdout and stderr both go to /dev/tty
-            if args.output.is_file() || isnt(Stream::Stdout) {
+            if let Some(progress_bar) = &progress_bar {
                 let len = file.metadata()?.len();
-                progress_bar = ProgressBar::new(len);
-                let fmt = "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
-                progress_bar.set_style(
-                    ProgressStyle::default_bar()
-                        .template(fmt)
-                        .progress_chars("#>-"),
-                );
+                progress_bar.set_length(len);
                 let file_with_pbar = progress_bar.wrap_read(file);
 
                 if has_gz_extension(&input) {
@@ -156,7 +165,11 @@ fn main() -> CliResult {
             Box::new(writer)
         }
     };
-    generate_xml(&mut out, reader, &args.category, args.record_type)?;
+    let num_records = generate_xml(&mut out, reader, &args.category, args.record_type)?;
+    // Drop progress bar, so it's removed from stderr before we print the performance metrics.
+    // Otherwise, the drop handler would erroneously remove the lower lines of the performance metrics output.
+    std::mem::drop(progress_bar);
+    print_performance_metrics(&initial_time, num_records);
     Ok(())
 }
 
@@ -166,4 +179,12 @@ fn has_gz_extension(path: &Path) -> bool {
         Some(ext) if ext == "gz" => true,
         _ => false,
     }
+}
+
+fn print_performance_metrics(initial_time: &Instant, num_records: u64) {
+    eprintln!(
+        "Processed {} records in {}.",
+        num_records,
+        humantime::format_duration(initial_time.elapsed())
+    );
 }
