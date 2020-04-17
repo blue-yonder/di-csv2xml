@@ -1,9 +1,10 @@
 Changelog
 =========
 
-1.0.18
-------
+2.0.0 (upcoming)
+-----
 
+* Breaking change: --category and --input options are now mandatory.
 * Small speedup than using stdin, stdout.
 
 1.0.17
