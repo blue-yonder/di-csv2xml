@@ -14,12 +14,16 @@ use std::io::{self, Read, Write};
 /// extensions are placed within a `CustomerExtension` tag in within the record. `category` is used
 /// for the root tag name. `record_type` switches between `<Record>`, `<DeleteRecord>` and
 /// `<DeleteAllRecords>` in markup.
+///
+/// # Return
+///
+/// Number of processed records.
 pub fn generate_xml<O: Write, I: Read>(
     out: O,
     mut reader: CsvSource<I>,
     category: &str,
     record_type: RecordType,
-) -> io::Result<()> {
+) -> io::Result<u64> {
     let mut writer = Writer::new_with_indent(out, b'\t', 1);
     // Write declaration
     // <?xml version="1.0" encoding="UTF-8" ?>
@@ -28,13 +32,15 @@ pub fn generate_xml<O: Write, I: Read>(
         .map_err(expect_io_error)?;
     // Open root tag (Category)
     open_markup(&mut writer, category)?;
+    let mut num_records: u64 = 0;
     while let Some(record) = reader.read_record()? {
         // Write one record for each entry in csv
         write_record(&mut writer, &record, record_type.as_str())?;
+        num_records += 1;
     }
     // Close root tag (Category)
     close_markup(&mut writer, category)?;
-    Ok(())
+    Ok(num_records)
 }
 
 /// Unwraps io::error, panics if the it is not `quick_xml::Error::Io`

@@ -20,6 +20,7 @@ structopt = "0.3.12"
 quick-xml = "0.18.1"
 flate2 = "1.0.14"
 atty = "0.2.14"
+humantime = "2.0.0"
 
 [dev-dependencies]
 tempfile = "3.1.0"
