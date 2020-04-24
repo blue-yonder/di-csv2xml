@@ -1,7 +1,10 @@
 Changelog
 =========
 
-2.0.0 (upcoming)
+2.0.1 (upcoming)
+-----
+
+2.0.0
 -----
 
 * Breaking change: --category and --input options are now mandatory.
