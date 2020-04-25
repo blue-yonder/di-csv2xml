@@ -115,7 +115,9 @@ This tool uses [criterion](https://github.com/bheisler/criterion.rs) for benchma
 cargo bench
 ```
 
-You can find a report with plots in `target/criterion/report/index.html`.
+from within the folder, where you checked out this repository.
+
+You should find a report with plots in `./target/criterion/report/index.html`.
 
 ## Support
 
