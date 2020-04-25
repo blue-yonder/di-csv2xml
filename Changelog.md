@@ -1,8 +1,10 @@
 Changelog
 =========
 
-2.0.1 (upcoming)
+2.0.1
 -----
+
+* Criterion Benchmark Suite
 
 2.0.0
 -----
