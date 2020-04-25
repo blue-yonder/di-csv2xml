@@ -10,8 +10,14 @@ perform any validation besides checking for valid `UTF8` encoding.
 Installation
 ------------
 
+### Binary executable
+
 You can [download a binary executable](https://github.com/blue-yonder/di-csv2xml/releases) (for
-64Bit OS-X, Windows and Linux) or build it yourself using:
+64Bit OS-X, Windows and Linux) from the release section.
+
+### From source
+
+You can build a binary executable yourself using:
 
 ```bash
 git clone https://github.com/blue-yonder/di-csv2xml.git
@@ -22,6 +28,14 @@ cargo build --release
 You will find the executable in the `.\target\release\` directory.
 
 You can install cargo from [here](https://rustup.rs) if it is not installed.
+
+### Homebrew
+
+If you are a MacOS user, you can use `homebrew` to install `di-csv2xml`:
+
+```bash
+brew install by-stehessel/BlueYonder/di-csv2xml
+```
 
 Usage
 -----
