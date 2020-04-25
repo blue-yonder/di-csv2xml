@@ -1,5 +1,4 @@
-Blue Yonder CSV to XML converter
-================================
+# Blue Yonder CSV to XML converter
 
 [![Build Status](https://travis-ci.org/blue-yonder/di-csv2xml.svg?branch=master)](https://travis-ci.org/blue-yonder/di-csv2xml)
 
@@ -7,38 +6,7 @@ This tool is intended to convert a `.csv` file into an `.xml` file ready to be s
 Blue Yonder Supply and Demand API. This tool has no schema information and therefore does not
 perform any validation besides checking for valid `UTF8` encoding.
 
-Installation
-------------
-
-### Binary executable
-
-You can [download a binary executable](https://github.com/blue-yonder/di-csv2xml/releases) (for
-64Bit OS-X, Windows and Linux) from the release section.
-
-### From source
-
-You can build a binary executable yourself using:
-
-```bash
-git clone https://github.com/blue-yonder/di-csv2xml.git
-cd di-csv2xml
-cargo build --release
-```
-
-You will find the executable in the `.\target\release\` directory.
-
-You can install cargo from [here](https://rustup.rs) if it is not installed.
-
-### Homebrew
-
-If you are a MacOS user, you can use `homebrew` to install `di-csv2xml`:
-
-```bash
-brew install by-stehessel/BlueYonder/di-csv2xml
-```
-
-Usage
------
+## Usage
 
 ```bash
 di-csv2xml --category Category --input input.csv --output output.xml
@@ -110,8 +78,46 @@ As this tool does not provide any schema validation, it is important to note tha
 Any typo in the parameter `category` or the header column of the csv-file is directly translated into the
 dedicated XML-tag, leading to potential errors when attempting to process the XML-file further.
 
-Support
--------
+## Installation
+
+### Binary executable
+
+You can [download a binary executable](https://github.com/blue-yonder/di-csv2xml/releases) (for
+64Bit OS-X, Windows and Linux) from the release section.
+
+### From source
+
+You can build a binary executable yourself using:
+
+```bash
+git clone https://github.com/blue-yonder/di-csv2xml.git
+cd di-csv2xml
+cargo build --release
+```
+
+You will find the executable in the `.\target\release\` directory.
+
+You can install cargo from [here](https://rustup.rs) if it is not installed.
+
+### Homebrew
+
+If you are a MacOS user, you can use `homebrew` to install `di-csv2xml`:
+
+```bash
+brew install by-stehessel/BlueYonder/di-csv2xml
+```
+
+## Benchmarks
+
+This tool uses [criterion](https://github.com/bheisler/criterion.rs) for benchmarking. You can execute the benchmarks with:
+
+```shell
+cargo bench
+```
+
+You can find a report with plots in `target/criterion/report/index.html`.
+
+## Support
 
 This tool is provided as is under an MIT license without any warranty or SLA. You are free to use
 it as part for any purpose, but the responsibility for operating it resides with you. We appreciate
