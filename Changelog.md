@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.2
+-----
+
+* Patched upstream version of `quick-xml`, to fix an issue with bytes dropped from compressed output.
+
 2.0.1
 -----
 

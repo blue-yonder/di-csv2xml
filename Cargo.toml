@@ -17,7 +17,9 @@ indicatif = "0.15.0"
 strum = "0.18.0"
 strum_macros = "0.18.0"
 structopt = "0.3.15"
-quick-xml = "0.18.1"
+# Use patched version until upstream fixed is merged.
+# https://github.com/tafia/quick-xml/pull/220
+quick-xml = { git = "https://github.com/pacman82/quick-xml.git" }
 flate2 = "1.0.14"
 atty = "0.2.14"
 humantime = "2.0.1"
