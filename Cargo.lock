@@ -256,7 +256,7 @@ dependencies = [
 
 [[package]]
 name = "di-csv2xml"
-version = "2.0.1"
+version = "2.0.3"
 dependencies = [
  "assert_cmd 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "atty 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.3
+-----
+
+* Updated dependencies, build with Rust 1.44.
+
 2.0.2
 -----
 
