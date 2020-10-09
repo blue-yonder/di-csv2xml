@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.0.5
+-----
+
+* Revert `quick-xml` to upstream version. Update dependencies.
+
 2.0.4
 -----
 
