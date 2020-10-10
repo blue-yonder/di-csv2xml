@@ -282,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "di-csv2xml"
-version = "2.0.4"
+version = "2.0.5"
 dependencies = [
  "assert_cmd",
  "atty",
