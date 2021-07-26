@@ -15,7 +15,6 @@ use std::{
     time::Instant,
 };
 use structopt::StructOpt;
-use strum;
 
 /// Reads csv and writes xml. The resulting XML Document is intended for deliveries to the
 /// Blue Yonder Supply and Demand API. This tool only checks for correct utf8 encoding and nothing
