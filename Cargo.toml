@@ -11,7 +11,6 @@ lto = true
 panic = "abort"
 
 [dependencies]
-quicli = "0.4.0"
 csv = "1.1.6"
 indicatif = "0.16.2"
 strum = "0.23.0"
@@ -21,6 +20,7 @@ quick-xml = "0.22.0"
 flate2 = "1.0.22"
 atty = "0.2.14"
 humantime = "2.1.0"
+anyhow = "1.0.53"
 
 [dev-dependencies]
 tempfile = "3.3.0"

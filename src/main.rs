@@ -4,9 +4,9 @@ mod record_type;
 
 use crate::{generate_xml::generate_xml, read_csv::CsvSource, record_type::RecordType};
 use atty::{isnt, Stream};
+use anyhow::Error;
 use flate2::{bufread::GzDecoder, GzBuilder};
 use indicatif::{ProgressBar, ProgressStyle};
-use quicli::prelude::*;
 use std::{
     fs::File,
     io,
@@ -73,7 +73,7 @@ impl FromStr for IoArg {
     }
 }
 
-fn main() -> CliResult {
+fn main() -> Result<(), Error> {
     let args = Cli::from_args();
 
     // Only initialized in case `input` specifies a file path, because only then we have information
