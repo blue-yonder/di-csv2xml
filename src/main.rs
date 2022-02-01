@@ -3,8 +3,8 @@ mod read_csv;
 mod record_type;
 
 use crate::{generate_xml::generate_xml, read_csv::CsvSource, record_type::RecordType};
-use atty::{isnt, Stream};
 use anyhow::Error;
+use atty::{isnt, Stream};
 use flate2::{bufread::GzDecoder, GzBuilder};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{
