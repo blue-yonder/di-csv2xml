@@ -83,7 +83,7 @@ dedicated XML-tag, leading to potential errors when attempting to process the XM
 ### Binary executable
 
 You can [download a binary executable](https://github.com/blue-yonder/di-csv2xml/releases) (for
-64Bit OS-X, Windows and Linux) from the release section.
+64Bit OS-X or Windows) from the release section.
 
 ### From source
 
