@@ -1,7 +1,5 @@
 # Blue Yonder CSV to XML converter
 
-[![Build Status](https://travis-ci.org/blue-yonder/di-csv2xml.svg?branch=master)](https://travis-ci.org/blue-yonder/di-csv2xml)
-
 This tool is intended to convert a `.csv` file into an `.xml` file ready to be sent to the
 Blue Yonder Supply and Demand API. This tool has no schema information and therefore does not
 perform any validation besides checking for valid `UTF8` encoding.
