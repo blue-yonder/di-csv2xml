@@ -3,10 +3,10 @@ mod read_csv;
 mod record_type;
 
 use crate::{generate_xml::generate_xml, read_csv::CsvSource, record_type::RecordType};
+use anyhow::Error;
 use atty::{isnt, Stream};
 use flate2::{bufread::GzDecoder, GzBuilder};
 use indicatif::{ProgressBar, ProgressStyle};
-use quicli::prelude::*;
 use std::{
     fs::File,
     io,
@@ -73,7 +73,7 @@ impl FromStr for IoArg {
     }
 }
 
-fn main() -> CliResult {
+fn main() -> Result<(), Error> {
     let args = Cli::from_args();
 
     // Only initialized in case `input` specifies a file path, because only then we have information
@@ -174,10 +174,7 @@ fn main() -> CliResult {
 
 /// Takes a path and returns `true` if the path ends in a `.gz` extension.
 fn has_gz_extension(path: &Path) -> bool {
-    match path.extension() {
-        Some(ext) if ext == "gz" => true,
-        _ => false,
-    }
+    matches!(path.extension(), Some(ext) if ext == "gz")
 }
 
 fn print_performance_metrics(initial_time: &Instant, num_records: u64) {
