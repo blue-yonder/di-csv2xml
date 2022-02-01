@@ -174,10 +174,7 @@ fn main() -> Result<(), Error> {
 
 /// Takes a path and returns `true` if the path ends in a `.gz` extension.
 fn has_gz_extension(path: &Path) -> bool {
-    match path.extension() {
-        Some(ext) if ext == "gz" => true,
-        _ => false,
-    }
+    matches!(path.extension(), Some(ext) if ext == "gz")
 }
 
 fn print_performance_metrics(initial_time: &Instant, num_records: u64) {

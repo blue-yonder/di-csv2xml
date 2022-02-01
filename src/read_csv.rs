@@ -1,4 +1,3 @@
-use csv;
 use std::io;
 
 pub const CUSTOMER_EXTENSION_PREFIX: &str = "CUEX_";
@@ -81,6 +80,6 @@ impl<'a> Record<'a> {
             .iter()
             .map(move |&index| (&self.tag_names[index][skip..], &self.values[index]))
             // Empty strings are treated as null and will not be rendered in XML
-            .filter(|&(_, ref v)| !v.is_empty())
+            .filter(|&(_, v)| !v.is_empty())
     }
 }
