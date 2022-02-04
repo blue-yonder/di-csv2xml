@@ -1,0 +1,46 @@
+name: Release binaries to GitHub
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release_win64:
+    name: Build and release Windows 64Bit
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          cargo build --release
+          Compress-Archive -LiteralPath target/release/di-csv2xml.exe -DestinationPath di-csv2xml-win64.zip
+
+      - name: Github Upload
+        uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: di-csv2xml-win64.zip
+          asset_name: di-csv2xml-win64.zip
+          tag: ${{ github.ref }}
+
+  release_os-x:
+    name: Build and release OS-X
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Github Upload
+        uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/di-csv2xml
+          asset_name: di-csv2xml-osx
+          tag: ${{ github.ref }}
