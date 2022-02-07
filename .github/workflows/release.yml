@@ -44,3 +44,26 @@ jobs:
           file: target/release/di-csv2xml
           asset_name: di-csv2xml-osx
           tag: ${{ github.ref }}
+
+
+  release_linux:
+    name: Build and release Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+        # Build musl target, so binary is compatible with any linux distribution
+      - name: Build
+        run: |
+          rustup target add x86_64-unknown-linux-musl
+          cargo build --release --target x86_64-unknown-linux-musl
+
+      - name: Github Upload
+        uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/x86_64-unknown-linux-musl/release/di-csv2xml
+          asset_name: di-csv2xml-linux
+          tag: ${{ github.ref }}
