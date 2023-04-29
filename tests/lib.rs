@@ -6,7 +6,7 @@ use tempfile::tempdir;
 fn simple() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&["--category", "Category", "--input", "tests/input.csv"])
+        .args(["--category", "Category", "--input", "tests/input.csv"])
         .assert()
         .success()
         .stdout(include_str!("output.xml").replace("\r\n", "\n"));
@@ -17,7 +17,7 @@ fn simple_stdin() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
         .write_stdin(include_str!("input.csv").replace("\r\n", "\n"))
-        .args(&["--category", "Category", "--input", "-"])
+        .args(["--category", "Category", "--input", "-"])
         .assert()
         .success()
         .stdout(include_str!("output.xml").replace("\r\n", "\n"));
@@ -27,7 +27,7 @@ fn simple_stdin() {
 fn input_gz() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&["--category", "Category", "--input", "tests/input.csv.gz"])
+        .args(["--category", "Category", "--input", "tests/input.csv.gz"])
         .assert()
         .success()
         .stdout(include_str!("output.xml").replace("\r\n", "\n"));
@@ -37,7 +37,7 @@ fn input_gz() {
 fn mask_text() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&["--category", "Text", "--input", "tests/text.csv"])
+        .args(["--category", "Text", "--input", "tests/text.csv"])
         .assert()
         .success()
         .stdout(include_str!("text.xml").replace("\r\n", "\n"));
@@ -47,7 +47,7 @@ fn mask_text() {
 fn semicolon_delimiter() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&[
+        .args([
             "--category",
             "Category",
             "--input",
@@ -64,7 +64,7 @@ fn semicolon_delimiter() {
 fn delete_record() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&[
+        .args([
             "--category",
             "Root",
             "--input",
@@ -81,7 +81,7 @@ fn delete_record() {
 fn delete_all() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&[
+        .args([
             "--category",
             "Root",
             "--input",
@@ -98,7 +98,7 @@ fn delete_all() {
 fn customer_extensions() {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&[
+        .args([
             "--category",
             "Root",
             "--input",
@@ -118,7 +118,7 @@ fn write_gz() {
     let out_str = out_path.to_str().expect("Tempfile path must be utf8");
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&[
+        .args([
             "--category",
             "Category",
             "--input",
