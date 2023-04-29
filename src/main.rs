@@ -37,6 +37,9 @@ struct Cli {
     /// only ASCII delimiters are supported.
     #[structopt(long, short = "d", default_value = ",")]
     delimiter: char,
+    /// If set benchmark output and progress bar are suppressed.
+    #[structopt(long, short = "q")]
+    quiet: bool,
 }
 
 /// IO argument for CLI tools which can either take a file or STDIN/STDOUT.
@@ -81,7 +84,7 @@ fn main() -> Result<(), Error> {
     //
     // We keep this in top level scope, since we want the progress bar to live during the whole
     // program execution, so it will be displayed.
-    let progress_bar = if args.input.is_file() && (args.output.is_file() || isnt(Stream::Stdout)) {
+    let progress_bar = if !args.quiet && args.input.is_file() && (args.output.is_file() || isnt(Stream::Stdout)) {
         let progress_bar = ProgressBar::new(0);
         let fmt = "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})";
         progress_bar.set_style(
@@ -168,7 +171,11 @@ fn main() -> Result<(), Error> {
     // Drop progress bar, so it's removed from stderr before we print the performance metrics.
     // Otherwise, the drop handler would erroneously remove the lower lines of the performance metrics output.
     std::mem::drop(progress_bar);
-    print_performance_metrics(&initial_time, num_records);
+
+    if !args.quiet {
+        print_performance_metrics(&initial_time, num_records);
+    }
+
     Ok(())
 }
 
