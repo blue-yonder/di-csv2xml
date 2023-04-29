@@ -20,7 +20,7 @@ impl<R: io::Read> CsvSource<R> {
     /// Creates a new `CsvSource` from any Read and a delimiter.
     pub fn new(input: R, delimiter: u8) -> io::Result<Self> {
         let mut reader = csv::ReaderBuilder::new()
-            .delimiter(delimiter as u8)
+            .delimiter(delimiter)
             .from_reader(input);
         let header = reader.headers()?.clone();
         let (extensions, standard): (Vec<_>, Vec<_>) = (0..header.len())

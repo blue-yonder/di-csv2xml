@@ -7,7 +7,7 @@ fn stream_io(input: &[u8]) {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
         .write_stdin(input)
-        .args(&["--category", "Category", "--input", "-"])
+        .args(["--category", "Category", "--input", "-"])
         .ok()
         .unwrap();
 }
@@ -15,7 +15,7 @@ fn stream_io(input: &[u8]) {
 fn file_io(in_path: &str, out_path: &str) {
     Command::cargo_bin("di-csv2xml")
         .unwrap()
-        .args(&[
+        .args([
             "--category",
             "Category",
             "--input",
