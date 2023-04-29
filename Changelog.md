@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.1.0
+-----
+
+* Add `--quiet` flag in order to supress non essential output.
+
 2.0.5
 -----
 
